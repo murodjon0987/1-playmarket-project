@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<title>Kiyimim AI — Har kun uchun aqlli kiyinish yordamchisi</title>
+<meta name="description" content="Kiyimim AI — sun'iy intellekt yordamida garderobingizni boshqaring va har kunga mos kiyim tavsiyalarini oling.">
+<meta name="theme-color" content="#2563EB">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ============ SVG SPRITE (ICONS) ============ -->
+<svg style="display:none">
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="ic-shirt" viewBox="0 0 24 24"><path d="M8 2 4 5v4l2.5-.6V21h11V8.4L20 9V5l-4-3-2 2h-4z"/></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+  <symbol id="ic-ai" viewBox="0 0 24 24"><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="4"/></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></symbol>
+  <symbol id="ic-heart" viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.6 8.3 2.2 4.8 5.6 4.1c2-.4 4 .5 6.4 3 2.4-2.5 4.4-3.4 6.4-3 3.4.7 5 4.2 3.6 7.6C19.5 16.4 12 21 12 21z"/></symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="ic-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+  <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+  <symbol id="ic-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></symbol>
+  <symbol id="ic-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="ic-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></symbol>
+  <symbol id="ic-chart" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></symbol>
+  <symbol id="ic-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/></symbol>
+  <symbol id="ic-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="m12 2 3.1 6.6 7.2.8-5.4 5 1.5 7.2L12 18l-6.4 3.6 1.5-7.2-5.4-5 7.2-.8z"/></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24"><path d="M6 10a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10Z"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V5z"/></symbol>
+  <symbol id="ic-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.4-9A5.5 5.5 0 0 1 17 8.5a4 4 0 0 1-.7 8H7Z"/></symbol>
+  <symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-9"/></symbol>
+  <symbol id="ic-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+  <symbol id="ic-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18Z"/></symbol>
+  <symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="ic-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"/><path d="m8.5 12.5-1.5 8 5-2.5 5 2.5-1.5-8"/></symbol>
+  <symbol id="ic-gift" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 9h18v4H3zM12 9v12M12 9C10 5 6 5 6 7.5S9 9 12 9ZM12 9c2-4 6-4 6-1.5S15 9 12 9Z"/></symbol>
+  <symbol id="ic-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+  <symbol id="ic-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2 15 22l-4-9-9-4Z"/></symbol>
+  <symbol id="ic-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 6.5 8 6 8-6"/></symbol>
+</svg>
+
+<!-- ============ SPLASH SCREEN ============ -->
+<section id="splash" class="screen splash">
+  <div class="splash-bg"></div>
+  <div class="splash-content">
+    <div class="splash-logo">
+      <svg viewBox="0 0 24 24" class="splash-logo-icon"><use href="#ic-shirt"/></svg>
+      <div class="splash-ring"></div>
+    </div>
+    <h1 class="splash-title">Kiyimim<span>AI</span></h1>
+    <p class="splash-tagline">Har kun uchun aqlli kiyinish yordamchisi</p>
+    <div class="splash-loader"><span></span><span></span><span></span></div>
+  </div>
+</section>
+
+<!-- ============ AUTH SCREEN ============ -->
+<section id="auth" class="screen auth">
+  <div class="auth-blob a"></div>
+  <div class="auth-blob b"></div>
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <svg viewBox="0 0 24 24" class="auth-brand-icon"><use href="#ic-shirt"/></svg>
+      <span>Kiyimim AI</span>
+    </div>
+
+    <div class="auth-card glass">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Kirish</button>
+        <button class="auth-tab" data-tab="register">Ro'yxatdan o'tish</button>
+        <span class="auth-tab-indicator"></span>
+      </div>
+
+      <form id="loginForm" class="auth-form active">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="email@misol.uz" required>
+        </div>
+        <div class="field">
+          <label>Parol</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+        <label class="remember">
+          <input type="checkbox" id="rememberMe">
+          <span class="checkbox-visual"></span>
+          Meni eslab qol
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Kirish</button>
+      </form>
+
+      <form id="registerForm" class="auth-form">
+        <div class="field">
+          <label>Ism</label>
+          <input type="text" id="regName" placeholder="Ismingiz" required>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="regEmail" placeholder="email@misol.uz" required>
+        </div>
+        <div class="field">
+          <label>Parol</label>
+          <input type="password" id="regPassword" placeholder="Kamida 6 ta belgi" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Ro'yxatdan o'tish</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP SHELL ============ -->
+<div id="appShell" class="app-shell">
+
+  <!-- ---- HOME ---- -->
+  <main id="view-home" class="view active">
+    <header class="home-header">
+      <div class="home-header-top">
+        <div>
+          <p class="eyebrow" id="greetingText">Xayrli tong</p>
+          <h1 class="home-name" id="userNameDisplay">Foydalanuvchi</h1>
+        </div>
+        <button class="icon-btn glass" id="notifBtn" aria-label="Bildirishnomalar">
+          <svg viewBox="0 0 24 24"><use href="#ic-bell"/></svg>
+          <span class="dot"></span>
+        </button>
+      </div>
+      <div class="home-meta-row">
+        <span class="chip" id="todayDate">—</span>
+        <button class="chip chip-weather" id="weatherChip">
+          <svg viewBox="0 0 24 24"><use href="#ic-cloud"/></svg>
+          <span id="weatherText">Ob-havo...</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="section-block">
+      <div class="section-head">
+        <h2>Bugungi AI tavsiya</h2>
+        <button class="link-btn" data-nav="ai">Barchasi <svg viewBox="0 0 24 24"><use href="#ic-chevron"/></svg></button>
+      </div>
+      <div class="today-look glass" id="todayLookCard">
+        <!-- filled by JS -->
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <span class="stat-num" id="statTotal">0</span>
+          <span class="stat-label">Jami kiyim</span>
+        </div>
+        <div class="stat-card stat-card-accent">
+          <span class="stat-num" id="statFav">0</span>
+          <span class="stat-label">Sevimlilar</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-head">
+        <h2>Oxirgi qo'shilgan</h2>
+        <button class="link-btn" data-nav="wardrobe">Hammasi <svg viewBox="0 0 24 24"><use href="#ic-chevron"/></svg></button>
+      </div>
+      <div class="latest-scroll" id="latestItemScroll"></div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-head"><h2>Tezkor tugmalar</h2></div>
+      <div class="quick-grid">
+        <button class="quick-btn" data-nav="add"><svg viewBox="0 0 24 24"><use href="#ic-plus"/></svg><span>Qo'shish</span></button>
+        <button class="quick-btn" data-nav="ai"><svg viewBox="0 0 24 24"><use href="#ic-ai"/></svg><span>AI tavsiya</span></button>
+        <button class="quick-btn" data-nav="favorites"><svg viewBox="0 0 24 24"><use href="#ic-heart"/></svg><span>Sevimlilar</span></button>
+        <button class="quick-btn" data-nav="stats"><svg viewBox="0 0 24 24"><use href="#ic-chart"/></svg><span>Statistika</span></button>
+      </div>
+    </section>
+
+    <section class="section-block section-block-last">
+      <div class="section-head"><h2>So'nggi faoliyat</h2></div>
+      <ul class="activity-list" id="activityList"></ul>
+    </section>
+  </main>
+
+  <!-- ---- WARDROBE (Kiyimlarim) ---- -->
+  <main id="view-wardrobe" class="view">
+    <header class="page-header">
+      <h1>Kiyimlarim</h1>
+      <div class="page-header-actions">
+        <button class="icon-btn" id="searchToggleBtn"><svg viewBox="0 0 24 24"><use href="#ic-search"/></svg></button>
+        <button class="icon-btn" id="filterToggleBtn"><svg viewBox="0 0 24 24"><use href="#ic-filter"/></svg><span class="badge" id="filterBadge" hidden></span></button>
+      </div>
+    </header>
+
+    <div class="search-bar" id="searchBar">
+      <svg viewBox="0 0 24 24"><use href="#ic-search"/></svg>
+      <input type="text" id="searchInput" placeholder="Kiyim, brend yoki rang qidiring...">
+      <button id="searchClear" class="icon-btn-mini" hidden><svg viewBox="0 0 24 24"><use href="#ic-close"/></svg></button>
+    </div>
+
+    <div class="category-scroll" id="categoryScroll"></div>
+
+    <div class="wardrobe-grid" id="wardrobeGrid"></div>
+    <div class="empty-state" id="wardrobeEmpty" hidden>
+      <svg viewBox="0 0 24 24"><use href="#ic-shirt"/></svg>
+      <h3>Garderob bo'sh</h3>
+      <p>Birinchi kiyimingizni qo'shing va AI tavsiyalarini oling.</p>
+      <button class="btn btn-primary" data-nav="add">Kiyim qo'shish</button>
+    </div>
+  </main>
+
+  <!-- ---- ADD ITEM ---- -->
+  <main id="view-add" class="view">
+    <header class="page-header">
+      <button class="icon-btn" data-nav="wardrobe"><svg viewBox="0 0 24 24"><use href="#ic-back"/></svg></button>
+      <h1 id="addFormTitle">Kiyim qo'shish</h1>
+      <span style="width:44px"></span>
+    </header>
+
+    <form id="itemForm" class="item-form">
+      <input type="hidden" id="itemId">
+      <div class="photo-upload" id="photoUpload">
+        <img id="photoPreview" alt="" hidden>
+        <div class="photo-upload-placeholder" id="photoPlaceholder">
+          <svg viewBox="0 0 24 24"><use href="#ic-camera"/></svg>
+          <span>Rasm qo'shish</span>
+        </div>
+        <input type="file" id="photoInput" accept="image/*" hidden>
+      </div>
+
+      <div class="field">
+        <label>Nomi *</label>
+        <input type="text" id="itemName" placeholder="Masalan: Oq futbolka" required>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Kategoriya *</label>
+          <select id="itemCategory" required></select>
+        </div>
+        <div class="field">
+          <label>Rang *</label>
+          <select id="itemColor" required></select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Brend</label>
+          <input type="text" id="itemBrand" placeholder="Masalan: Zara">
+        </div>
+        <div class="field">
+          <label>Narx (so'm)</label>
+          <input type="number" id="itemPrice" placeholder="0" min="0">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Fasl *</label>
+          <select id="itemSeason" required></select>
+        </div>
+        <div class="field">
+          <label>Material</label>
+          <input type="text" id="itemMaterial" placeholder="Masalan: Paxta">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Holati</label>
+        <div class="segmented" id="itemConditionSeg">
+          <button type="button" class="seg-btn active" data-value="Yangi">Yangi</button>
+          <button type="button" class="seg-btn" data-value="Yaxshi">Yaxshi</button>
+          <button type="button" class="seg-btn" data-value="Eskirgan">Eskirgan</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Izoh</label>
+        <textarea id="itemNote" rows="3" placeholder="Qo'shimcha izoh..."></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="itemSaveBtn">Saqlash</button>
+    </form>
+  </main>
+
+  <!-- ---- AI RECOMMENDATION ---- -->
+  <main id="view-ai" class="view">
+    <header class="page-header">
+      <h1>AI Tavsiya</h1>
+      <span style="width:44px"></span>
+    </header>
+
+    <section class="section-block">
+      <p class="ai-intro">Vaziyatni tanlang, AI garderobingizdagi eng mos kombinatsiyani tayyorlaydi.</p>
+      <div class="occasion-grid" id="occasionGrid"></div>
+    </section>
+
+    <section class="section-block" id="aiResultWrap" hidden>
+      <div class="ai-result glass">
+        <div class="ai-result-head">
+          <div class="match-ring" id="matchRing">
+            <svg viewBox="0 0 120 120">
+              <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+              <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52"></circle>
+            </svg>
+            <div class="match-ring-label"><span id="matchPercent">0%</span><small>moslik</small></div>
+          </div>
+          <div>
+            <h3 id="aiOccasionTitle">Tavsiya</h3>
+            <p id="aiOccasionDesc">Garderobingizdan tanlangan kombinatsiya</p>
+          </div>
+        </div>
+        <div class="ai-outfit-grid" id="aiOutfitGrid"></div>
+        <button class="btn btn-secondary btn-block" id="refreshAiBtn">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px"><use href="#ic-ai"/></svg>
+          Tavsiyani yangilash
+        </button>
+      </div>
+    </section>
+
+    <div class="empty-state" id="aiEmpty">
+      <svg viewBox="0 0 24 24"><use href="#ic-ai"/></svg>
+      <h3>Vaziyatni tanlang</h3>
+      <p>Yuqoridan bir vaziyatni tanlasangiz, AI sizga mos kiyim tavsiya qiladi.</p>
+    </div>
+  </main>
+
+  <!-- ---- FAVORITES ---- -->
+  <main id="view-favorites" class="view">
+    <header class="page-header">
+      <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24"><use href="#ic-back"/></svg></button>
+      <h1>Sevimlilar</h1>
+      <span style="width:44px"></span>
+    </header>
+    <div class="wardrobe-grid" id="favoritesGrid"></div>
+    <div class="empty-state" id="favoritesEmpty" hidden>
+      <svg viewBox="0 0 24 24"><use href="#ic-heart"/></svg>
+      <h3>Sevimlilar bo'sh</h3>
+      <p>Kiyimlaringizni yoqtirilganlarga qo'shing.</p>
+    </div>
+  </main>
+
+  <!-- ---- STATS ---- -->
+  <main id="view-stats" class="view">
+    <header class="page-header">
+      <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24"><use href="#ic-back"/></svg></button>
+      <h1>Statistika</h1>
+      <span style="width:44px"></span>
+    </header>
+
+    <div class="stat-grid stat-grid-4" id="statsSummary"></div>
+
+    <section class="section-block">
+      <div class="section-head"><h2>Kategoriyalar bo'yicha</h2></div>
+      <div class="bar-chart" id="categoryChart"></div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-head"><h2>Ranglar bo'yicha</h2></div>
+      <div class="color-chart" id="colorChart"></div>
+    </section>
+  </main>
+
+  <!-- ---- PROFILE ---- -->
+  <main id="view-profile" class="view">
+    <header class="page-header">
+      <h1>Profil</h1>
+      <span style="width:44px"></span>
+    </header>
+
+    <div class="profile-hero">
+      <div class="profile-avatar" id="profileAvatar">FI</div>
+      <h2 id="profileName">Foydalanuvchi</h2>
+      <p id="profileEmail">email@misol.uz</p>
+    </div>
+
+    <div class="profile-menu">
+      <button class="profile-item" data-nav="wardrobe">
+        <span class="profile-item-icon"><svg viewBox="0 0 24 24"><use href="#ic-shirt"/></svg></span>
+        <span>Mening garderobim</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+      <button class="profile-item" data-nav="favorites">
+        <span class="profile-item-icon"><svg viewBox="0 0 24 24"><use href="#ic-heart"/></svg></span>
+        <span>Sevimlilar</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+      <button class="profile-item" data-nav="stats">
+        <span class="profile-item-icon"><svg viewBox="0 0 24 24"><use href="#ic-chart"/></svg></span>
+        <span>Statistika</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+      <button class="profile-item" data-nav="outfits">
+        <span class="profile-item-icon"><svg viewBox="0 0 24 24"><use href="#ic-star"/></svg></span>
+        <span>Saqlangan outfitlar</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+      <button class="profile-item" data-nav="calendar">
+        <span class="profile-item-icon"><svg viewBox="0 0 24 24"><use href="#ic-calendar"/></svg></span>
+        <span>Kiyim kalendari</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+      <button class="profile-item" data-nav="badges">
+        <span class="profile-item-icon"><svg viewBox="0 0 24 24"><use href="#ic-award"/></svg></span>
+        <span>Yutuqlarim</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+      <button class="profile-item" data-nav="settings">
+        <span class="profile-item-icon"><svg viewBox="0 0 24 24"><use href="#ic-user"/></svg></span>
+        <span>Sozlamalar</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+      <button class="profile-item" data-nav="contact">
+        <span class="profile-item-icon"><svg viewBox="0 0 24 24"><use href="#ic-mail"/></svg></span>
+        <span>Bog'lanish</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+      <button class="profile-item" data-nav="donate">
+        <span class="profile-item-icon"><svg viewBox="0 0 24 24"><use href="#ic-gift"/></svg></span>
+        <span>Loyihani qo'llab-quvvatlash</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+      <button class="profile-item profile-item-danger" id="logoutBtn">
+        <span class="profile-item-icon"><svg viewBox="0 0 24 24"><use href="#ic-logout"/></svg></span>
+        <span>Chiqish</span>
+      </button>
+    </div>
+  </main>
+
+  <!-- ---- SETTINGS ---- -->
+  <main id="view-settings" class="view">
+    <header class="page-header">
+      <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24"><use href="#ic-back"/></svg></button>
+      <h1>Sozlamalar</h1>
+      <span style="width:44px"></span>
+    </header>
+
+    <div class="settings-group">
+      <p class="settings-group-title">Ko'rinish</p>
+      <div class="settings-row">
+        <span class="settings-row-icon"><svg viewBox="0 0 24 24"><use href="#ic-sun"/></svg></span>
+        <span>Yorug' rejim</span>
+        <label class="switch"><input type="radio" name="theme" id="themeLight"><span class="switch-visual"></span></label>
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-icon"><svg viewBox="0 0 24 24"><use href="#ic-moon"/></svg></span>
+        <span>Tungi rejim</span>
+        <label class="switch"><input type="radio" name="theme" id="themeDark"><span class="switch-visual"></span></label>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <p class="settings-group-title">Umumiy</p>
+      <div class="settings-row">
+        <span class="settings-row-icon"><svg viewBox="0 0 24 24"><use href="#ic-globe"/></svg></span>
+        <span>Til</span>
+        <span class="settings-value">O'zbekcha</span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-icon"><svg viewBox="0 0 24 24"><use href="#ic-bell"/></svg></span>
+        <span>Bildirishnomalar</span>
+        <label class="toggle"><input type="checkbox" id="notifToggle" checked><span class="toggle-visual"></span></label>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <p class="settings-group-title">Ma'lumotlar</p>
+      <button class="settings-row settings-row-btn" id="backupBtn">
+        <span class="settings-row-icon"><svg viewBox="0 0 24 24"><use href="#ic-shield"/></svg></span>
+        <span>Zaxira nusxa yuklab olish</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+      <button class="settings-row settings-row-btn" id="privacyBtn">
+        <span class="settings-row-icon"><svg viewBox="0 0 24 24"><use href="#ic-shield"/></svg></span>
+        <span>Maxfiylik siyosati</span>
+        <svg class="chev" viewBox="0 0 24 24"><use href="#ic-chevron"/></svg>
+      </button>
+    </div>
+  </main>
+
+  <!-- ---- SAQLANGAN OUTFITLAR ---- -->
+  <main id="view-outfits" class="view">
+    <header class="page-header">
+      <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24"><use href="#ic-back"/></svg></button>
+      <h1>Saqlangan outfitlar</h1>
+      <span style="width:44px"></span>
+    </header>
+    <p class="ai-intro">AI tavsiyalaridan yoqqanlarini saqlab, keyinroq qayta kiyib chiqing.</p>
+    <div class="outfit-grid" id="outfitsGrid"></div>
+    <div class="empty-state" id="outfitsEmpty" hidden>
+      <svg viewBox="0 0 24 24"><use href="#ic-star"/></svg>
+      <h3>Outfit saqlanmagan</h3>
+      <p>AI Tavsiya bo'limida kombinatsiya oling va "Saqlash" tugmasini bosing.</p>
+      <button class="btn btn-primary" data-nav="ai">AI Tavsiyaga o'tish</button>
+    </div>
+  </main>
+
+  <!-- ---- KIYIM KALENDARI ---- -->
+  <main id="view-calendar" class="view">
+    <header class="page-header">
+      <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24"><use href="#ic-back"/></svg></button>
+      <h1>Kiyim kalendari</h1>
+      <span style="width:44px"></span>
+    </header>
+
+    <div class="calendar-nav">
+      <button class="icon-btn" id="calPrevBtn"><svg viewBox="0 0 24 24" style="transform:rotate(180deg)"><use href="#ic-chevron"/></svg></button>
+      <h3 id="calMonthLabel">—</h3>
+      <button class="icon-btn" id="calNextBtn"><svg viewBox="0 0 24 24"><use href="#ic-chevron"/></svg></button>
+    </div>
+    <div class="calendar-weekdays">
+      <span>Du</span><span>Se</span><span>Ch</span><span>Pa</span><span>Ju</span><span>Sh</span><span>Ya</span>
+    </div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+
+    <div class="section-block" style="margin-top:24px">
+      <div class="section-head"><h2>Tanlangan kun</h2></div>
+      <div class="day-log-card glass" id="dayLogCard"></div>
+    </div>
+  </main>
+
+  <!-- ---- YUTUQLARIM (BADGES) ---- -->
+  <main id="view-badges" class="view">
+    <header class="page-header">
+      <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24"><use href="#ic-back"/></svg></button>
+      <h1>Yutuqlarim</h1>
+      <span style="width:44px"></span>
+    </header>
+    <div class="badges-summary glass" id="badgesSummary"></div>
+    <div class="badge-grid" id="badgeGrid"></div>
+  </main>
+
+  <!-- ---- BOG'LANISH ---- -->
+  <main id="view-contact" class="view">
+    <header class="page-header">
+      <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24"><use href="#ic-back"/></svg></button>
+      <h1>Bog'lanish</h1>
+      <span style="width:44px"></span>
+    </header>
+
+    <p class="ai-intro">Taklif, shikoyat yoki savolingiz bo'lsa — bemalol yozing. Sizga tez orada javob beramiz.</p>
+
+    <div class="contact-channels">
+      <a class="contact-channel" href="kiyimim.ai@gmail.com">
+        <span class="settings-row-icon"><svg viewBox="0 0 24 24"><use href="#ic-mail"/></svg></span>
+        <div><p>Email:</p><span>kiyimim.ai@gmail.com</span></div>
+      </a>
+      <a class="contact-channel" href="http://t.me/wenzone72" target="_blank" rel="noopener">
+        <span class="settings-row-icon"><svg viewBox="0 0 24 24"><use href="#ic-send"/></svg></span>
+        <div><p>Telegram:</p><span>@wenzone72</span></div>
+      </a>
+    </div>
+
+    <form id="contactForm" class="item-form" style="margin-top:22px">
+      <div class="field">
+        <label>Ism</label>
+        <input type="text" id="contactName" placeholder="Ismingiz" required>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="contactEmail" placeholder="email@misol.uz" required>
+      </div>
+      <div class="field">
+        <label>Xabar</label>
+        <textarea id="contactMessage" rows="4" placeholder="Fikringizni yozing..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg">
+        <svg viewBox="0 0 24 24" style="width:18px;height:18px"><use href="#ic-send"/></svg>
+        Yuborish
+      </button>
+    </form>
+  </main>
+
+  <!-- ---- DONAT / QO'LLAB-QUVVATLASH ---- -->
+  <main id="view-donate" class="view">
+    <header class="page-header">
+      <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24"><use href="#ic-back"/></svg></button>
+      <h1>Qo'llab-quvvatlash</h1>
+      <span style="width:44px"></span>
+    </header>
+
+    <div class="donate-hero glass">
+      <svg viewBox="0 0 24 24" class="donate-hero-icon"><use href="#ic-gift"/></svg>
+      <h2>Loyihani qo'llab-quvvatlang</h2>
+      <p>Kiyimim AI mustaqil loyiha sifatida rivojlanmoqda. Sizning homiyligingiz yangi funksiyalar yaratishga yordam beradi.</p>
+    </div>
+
+    <div class="section-block">
+      <div class="section-head"><h2>Miqdorni tanlang</h2></div>
+      <div class="donate-amounts" id="donateAmounts">
+        <button class="donate-amount-btn" data-amount="10000">10 000 so'm</button>
+        <button class="donate-amount-btn active" data-amount="25000">25 000 so'm</button>
+        <button class="donate-amount-btn" data-amount="50000">50 000 so'm</button>
+        <button class="donate-amount-btn" data-amount="custom">O'zim kiritaman</button>
+      </div>
+      <input type="number" id="donateCustomAmount" class="donate-custom-input" placeholder="Miqdorni kiriting (so'm)" hidden>
+    </div>
+
+    <div class="section-block">
+      <div class="section-head"><h2>To'lov usuli</h2></div>
+      <div class="pay-method-card">
+        <div>
+          <p class="pay-method-title">Bank kartasi (Open Bank)</p>
+          <p class="pay-method-value">4067 0700 0861 0359</p>
+        </div>
+        <button class="icon-btn copy-btn" data-copy="4067070008610359"><svg viewBox="0 0 24 24"><use href="#ic-copy"/></svg></button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-block btn-lg" id="donateConfirmBtn">
+      <svg viewBox="0 0 24 24" style="width:18px;height:18px"><use href="#ic-gift"/></svg>
+      Rahmat, men qo'llab-quvvatlayman
+    </button>
+    <p class="donate-disclaimer">Bu — demo sahifa: real to'lov amalga oshirilmaydi, faqat rekvizitlar nusxalanadi.</p>
+  </main>
+
+  <!-- ---- BOTTOM NAVIGATION ---- -->
+  <nav class="bottom-nav glass">
+    <button class="nav-btn active" data-nav="home"><svg viewBox="0 0 24 24"><use href="#ic-home"/></svg><span>Bosh sahifa</span></button>
+    <button class="nav-btn" data-nav="wardrobe"><svg viewBox="0 0 24 24"><use href="#ic-shirt"/></svg><span>Kiyimlarim</span></button>
+    <button class="nav-btn nav-btn-fab" data-nav="add"><span class="fab-inner"><svg viewBox="0 0 24 24"><use href="#ic-plus"/></svg></span></button>
+    <button class="nav-btn" data-nav="ai"><svg viewBox="0 0 24 24"><use href="#ic-ai"/></svg><span>AI Tavsiya</span></button>
+    <button class="nav-btn" data-nav="profile"><svg viewBox="0 0 24 24"><use href="#ic-user"/></svg><span>Profil</span></button>
+  </nav>
+
+  <button class="back-to-top" id="backToTop"><svg viewBox="0 0 24 24"><use href="#ic-up"/></svg></button>
+</div>
+
+<!-- ============ FILTER MODAL ============ -->
+<div class="modal-overlay" id="filterModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <h3>Filtr</h3>
+      <button class="link-btn" id="filterReset">Tozalash</button>
+    </div>
+    <div class="filter-body">
+      <p class="filter-label">Kategoriya</p>
+      <div class="chip-select" id="filterCategory"></div>
+      <p class="filter-label">Rang</p>
+      <div class="chip-select" id="filterColor"></div>
+      <p class="filter-label">Fasl</p>
+      <div class="chip-select" id="filterSeason"></div>
+      <p class="filter-label">Narx oralig'i</p>
+      <div class="price-range">
+        <input type="number" id="filterPriceMin" placeholder="Dan">
+        <span>—</span>
+        <input type="number" id="filterPriceMax" placeholder="Gacha">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block" id="filterApply">Qo'llash</button>
+  </div>
+</div>
+
+<!-- ============ ITEM DETAIL MODAL ============ -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-sheet modal-sheet-detail">
+    <div class="modal-handle"></div>
+    <button class="modal-close" id="detailClose"><svg viewBox="0 0 24 24"><use href="#ic-close"/></svg></button>
+    <div class="detail-photo" id="detailPhoto"></div>
+    <div class="detail-body">
+      <div class="detail-head">
+        <h2 id="detailName">—</h2>
+        <button class="icon-btn heart-btn" id="detailFavBtn"><svg viewBox="0 0 24 24"><use href="#ic-heart"/></svg></button>
+      </div>
+      <p class="detail-category" id="detailCategory">—</p>
+      <div class="detail-tags" id="detailTags"></div>
+      <p class="detail-note" id="detailNote"></p>
+      <div class="detail-actions">
+        <button class="btn btn-secondary" id="detailEditBtn"><svg viewBox="0 0 24 24" style="width:18px;height:18px"><use href="#ic-edit"/></svg> Tahrirlash</button>
+        <button class="btn btn-danger-outline" id="detailDeleteBtn"><svg viewBox="0 0 24 24" style="width:18px;height:18px"><use href="#ic-trash"/></svg> O'chirish</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CONFIRM MODAL ============ -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">Ishonchingiz komilmi?</h3>
+    <p id="confirmText">Bu amalni ortga qaytarib bo'lmaydi.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" id="confirmCancel">Bekor qilish</button>
+      <button class="btn btn-danger" id="confirmOk">O'chirish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOAST CONTAINER ============ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============ SUCCESS ANIMATION OVERLAY ============ -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-check">
+    <svg viewBox="0 0 24 24"><use href="#ic-check"/></svg>
+  </div>
+  <p id="successText">Saqlandi!</p>
+</div>
+
+<script src="/js/storage.js"></script>
+<script src="/js/data.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/wardrobe.js"></script>
+<script src="/js/ai.js"></script>
+<script src="/js/app.js"></script>
+<script>
+  // PWA: offline arxitektura uchun service worker ro'yxatdan o'tkazish
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {
+        console.warn("Service worker ro'yxatdan o'tmadi (fayl:// protokolida normal holat).");
+      });
+    });
+  }
+</script>
+</body>
+</html>
