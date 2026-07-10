@@ -412,6 +412,7 @@ html[data-theme="dark"] .item-card-img{background:linear-gradient(160deg,#1a2540
 .ai-outfit-img svg{width:18px; height:18px; color:var(--text-3);}
 .ai-outfit-label{font-size:9.5px; color:var(--text-3); font-weight:700; text-transform:uppercase;}
 .ai-outfit-name{font-size:10.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.ai-result-actions{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
 
 /* ==========================================================================
    STATS
@@ -552,3 +553,83 @@ html[data-theme="dark"] .detail-photo{background:linear-gradient(160deg,#1a2540,
   .quick-grid{grid-template-columns:repeat(2,1fr);}
   .occasion-grid{grid-template-columns:repeat(2,1fr);}
 }
+
+/* ==========================================================================
+   SAQLANGAN OUTFITLAR
+   ========================================================================== */
+.outfit-grid{display:flex; flex-direction:column; gap:14px;}
+.outfit-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow-sm); animation:cardIn .4s ease both;}
+.outfit-card-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+.outfit-card-title{font-size:14.5px; font-weight:700;}
+.outfit-card-title span{margin-right:6px;}
+.outfit-card-match{font-size:11.5px; font-weight:700; color:var(--success); background:rgba(16,185,129,.12); padding:4px 10px; border-radius:100px;}
+.outfit-card-items{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px;}
+.outfit-card-slot{aspect-ratio:1; border-radius:12px; background:var(--bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden;}
+.outfit-card-slot img{width:100%; height:100%; object-fit:cover;}
+.outfit-card-slot svg{width:16px; height:16px; color:var(--text-3);}
+.outfit-card-foot{display:flex; gap:10px;}
+.outfit-card-foot .btn{flex:1; padding:10px; font-size:12.5px;}
+
+/* ==========================================================================
+   KIYIM KALENDARI
+   ========================================================================== */
+.calendar-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+.calendar-nav h3{font-size:15.5px; font-weight:700;}
+.calendar-weekdays{display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:11px; font-weight:700; color:var(--text-3); margin-bottom:8px;}
+.calendar-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px;}
+.cal-day{aspect-ratio:1; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:12.5px; font-weight:600; background:var(--surface); border:1px solid var(--border); position:relative; color:var(--text-2); transition:all .15s;}
+.cal-day.empty{background:none; border:none;}
+.cal-day.today{border-color:var(--primary); color:var(--primary);}
+.cal-day.selected{background:var(--primary); color:#fff; border-color:var(--primary);}
+.cal-day .cal-dot{position:absolute; bottom:5px; width:5px; height:5px; border-radius:50%; background:var(--accent-amber);}
+.cal-day.selected .cal-dot{background:#fff;}
+.day-log-card{border-radius:var(--radius-lg); padding:16px; min-height:80px;}
+.day-log-empty{text-align:center; padding:10px; color:var(--text-2); font-size:13px;}
+.day-log-items{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
+.day-log-chip{display:flex; align-items:center; gap:6px; background:var(--bg); border:1px solid var(--border); border-radius:100px; padding:6px 12px; font-size:12px; font-weight:600;}
+.item-pick-list{display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto; margin-bottom:16px;}
+.item-pick-row{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; border:1.5px solid var(--border); font-size:13px; font-weight:600;}
+.item-pick-row.checked{border-color:var(--primary); background:rgba(37,99,235,.06);}
+.item-pick-row input{width:18px; height:18px; accent-color:var(--primary);}
+
+/* ==========================================================================
+   YUTUQLAR (BADGES)
+   ========================================================================== */
+.badges-summary{border-radius:var(--radius-lg); padding:18px; display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; box-shadow:var(--shadow-sm);}
+.badges-summary-num{font-size:26px; font-weight:800; font-family:var(--font-display); color:var(--primary);}
+.badges-summary-label{font-size:12px; color:var(--text-2); font-weight:600;}
+.badge-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+.badge-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; text-align:center; box-shadow:var(--shadow-sm); transition:transform .2s;}
+.badge-card.locked{opacity:.5;}
+.badge-icon{width:52px; height:52px; border-radius:16px; background:linear-gradient(135deg,var(--primary-light),var(--primary-dark)); display:flex; align-items:center; justify-content:center; margin:0 auto 10px;}
+.badge-card.locked .badge-icon{background:var(--border);}
+.badge-icon svg{width:24px; height:24px; stroke:#fff;}
+.badge-card.locked .badge-icon svg{stroke:var(--text-3);}
+.badge-name{font-size:12.5px; font-weight:700; margin-bottom:4px;}
+.badge-desc{font-size:10.5px; color:var(--text-3); line-height:1.4; margin-bottom:8px;}
+.badge-progress{height:5px; border-radius:100px; background:var(--border); overflow:hidden;}
+.badge-progress-fill{height:100%; background:var(--primary); border-radius:100px; transition:width .8s ease;}
+
+/* ==========================================================================
+   BOG'LANISH
+   ========================================================================== */
+.contact-channels{display:flex; flex-direction:column; gap:10px;}
+.contact-channel{display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 16px;}
+.contact-channel p{font-size:13.5px; font-weight:700;}
+.contact-channel span{font-size:12px; color:var(--text-3);}
+
+/* ==========================================================================
+   DONAT / QO'LLAB-QUVVATLASH
+   ========================================================================== */
+.donate-hero{border-radius:var(--radius-xl); padding:28px 22px; text-align:center; margin-bottom:24px; box-shadow:var(--shadow-sm);}
+.donate-hero-icon{width:44px; height:44px; stroke:var(--primary); margin-bottom:14px;}
+.donate-hero h2{font-size:18px; font-weight:800; margin-bottom:8px;}
+.donate-hero p{font-size:13px; color:var(--text-2); line-height:1.55;}
+.donate-amounts{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.donate-amount-btn{padding:14px; border-radius:14px; border:1.5px solid var(--border); background:var(--surface); font-size:13.5px; font-weight:700; color:var(--text-2); transition:all .2s;}
+.donate-amount-btn.active{border-color:var(--primary); background:rgba(37,99,235,.08); color:var(--primary);}
+.donate-custom-input{width:100%; margin-top:10px; border:1.5px solid var(--border); border-radius:12px; padding:12px 14px; font-size:14px; background:var(--surface);}
+.pay-method-card{display:flex; align-items:center; justify-content:space-between; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 16px; margin-bottom:10px;}
+.pay-method-title{font-size:13px; font-weight:700; margin-bottom:2px;}
+.pay-method-value{font-size:12.5px; color:var(--text-3); letter-spacing:.03em;}
+.donate-disclaimer{text-align:center; font-size:11.5px; color:var(--text-3); margin-top:14px; line-height:1.5;}
