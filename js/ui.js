@@ -28,7 +28,10 @@ const UI = {
       wardrobe: () => Wardrobe.render(),
       favorites: () => Wardrobe.renderFavorites(),
       stats: () => App.renderStats(),
-      ai: () => AIEngine.renderOccasions()
+      ai: () => AIEngine.renderOccasions(),
+      outfits: () => OutfitsUI.render(),
+      calendar: () => CalendarUI.render(),
+      badges: () => BadgesUI.render()
     };
     if (refreshMap[viewName]) refreshMap[viewName]();
   },

@@ -8,6 +8,9 @@
  */
 const AIEngine = {
   selectedOccasion: null,
+  lastOccasion: null,
+  lastResult: null,
+  lastMatchScore: 0,
 
   SLOTS: {
     top: { label: 'Yuqori kiyim', categories: ['futbolka', 'koylak'] },
@@ -32,6 +35,7 @@ const AIEngine = {
       });
     });
     document.getElementById('refreshAiBtn').addEventListener('click', () => this.generateRecommendation(true));
+    document.getElementById('saveOutfitBtn').addEventListener('click', () => this.saveCurrentOutfit());
   },
 
   /** Berilgan slot uchun eng mos kiyimni tanlaydi */
@@ -86,11 +90,45 @@ const AIEngine = {
     matchScore = Math.min(99, Math.max(matchScore, filledSlots ? 45 : 0));
     if (shuffle) matchScore = Math.min(99, matchScore + Math.floor(Math.random() * 6) - 2);
 
+    this.lastOccasion = occasion;
+    this.lastResult = result;
+    this.lastMatchScore = matchScore;
+
     this.renderResult(occasion, result, matchScore);
 
     if (filledSlots === 0) {
       UI.toast("Garderobda mos kiyim topilmadi. Avval kiyim qo'shing.", 'error');
+    } else {
+      ProgressRepo.incrementAiUsage();
     }
+  },
+
+  /** Joriy AI tavsiyasini "Saqlangan outfitlar" bo'limiga saqlaydi */
+  saveCurrentOutfit() {
+    if (!this.lastOccasion || !this.lastResult) {
+      UI.toast('Avval bir vaziyatni tanlang', 'error');
+      return;
+    }
+    const hasAnyItem = Object.values(this.lastResult).some(Boolean);
+    if (!hasAnyItem) {
+      UI.toast('Saqlash uchun mos kiyim topilmadi', 'error');
+      return;
+    }
+    OutfitsRepo.create({
+      occasionId: this.lastOccasion.id,
+      occasionName: this.lastOccasion.name,
+      occasionEmoji: this.lastOccasion.emoji,
+      matchScore: this.lastMatchScore,
+      itemIds: {
+        top: this.lastResult.top ? this.lastResult.top.id : null,
+        bottom: this.lastResult.bottom ? this.lastResult.bottom.id : null,
+        shoes: this.lastResult.shoes ? this.lastResult.shoes.id : null,
+        accessory: this.lastResult.accessory ? this.lastResult.accessory.id : null
+      }
+    });
+    ActivityRepo.add(`"${this.lastOccasion.name}" uchun outfit saqlandi`, 'ic-star');
+    UI.showSuccess('Outfit saqlandi!');
+    UI.toast('Outfit "Saqlangan outfitlar" bo\'limiga qo\'shildi', 'success');
   },
 
   renderResult(occasion, result, matchScore) {

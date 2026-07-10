@@ -228,7 +228,11 @@ const ProgressRepo = {
     const dates = new Set(Storage.get(STORAGE_KEYS.LOGIN_DATES, []));
     dates.add(today);
     Storage.set(STORAGE_KEYS.LOGIN_DATES, [...dates]);
-
+    return this.getStreak();
+  },
+  /** Yozuvni o'zgartirmasdan, hozirgi ketma-ket kunlar sonini hisoblaydi (Yutuqlar sahifasi uchun) */
+  getStreak() {
+    const dates = new Set(Storage.get(STORAGE_KEYS.LOGIN_DATES, []));
     let streak = 0;
     let cursor = new Date();
     while (true) {

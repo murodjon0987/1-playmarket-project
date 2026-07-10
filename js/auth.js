@@ -1,12 +1,7 @@
 /**
- * auth.js
- * -----------------------------------------------------------------------
- * Oddiy (frontend-only) autentifikatsiya: ro'yxatdan o'tish, kirish va
- * chiqish. Barcha ma'lumotlar faqat localStorage'da saqlanadi — real
- * backend yo'q, shuning uchun parollar oddiy matn holida saqlanadi
- * (demo/o'quv maqsad uchun yetarli).
- * -----------------------------------------------------------------------
+ * auth.js - Toza va xavfsiz versiya (Parol hash bilan)
  */
+
 const Auth = {
   init() {
     this.bindTabs();
@@ -14,13 +9,13 @@ const Auth = {
   },
 
   bindTabs() {
-    const tabs = document.querySelectorAll('.auth-tab');
-    tabs.forEach(tab => {
+    document.querySelectorAll('.auth-tab').forEach(tab => {
       tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
+        
         document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-        document.getElementById(`${tab.dataset.tab}Form`).classList.add('active');
+        document.getElementById(tab.dataset.tab + 'Form').classList.add('active');
       });
     });
   },
@@ -30,41 +25,48 @@ const Auth = {
       e.preventDefault();
       this.login();
     });
+
     document.getElementById('registerForm').addEventListener('submit', e => {
       e.preventDefault();
       this.register();
     });
   },
 
-  register() {
+  // ================== RO'YXATDAN O'TISH ==================
+  async register() {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
 
     if (!name || !email || password.length < 6) {
-      UI.toast("Iltimos, barcha maydonlarni to'g'ri to'ldiring (parol 6+ belgi)", 'error');
+      UI.toast("Barcha maydonlarni to'ldiring (parol kamida 6 ta belgi)", 'error');
       return;
     }
     if (UsersRepo.findByEmail(email)) {
       UI.toast('Bu email allaqachon ro\'yxatdan o\'tgan', 'error');
       return;
     }
-    const user = UsersRepo.create({ name, email, password });
+
+    const hashedPassword = await PasswordUtils.hash(password);
+    const user = UsersRepo.create({ name, email, password: hashedPassword });
+
     UsersRepo.setSession(user.id, true);
     UI.toast(`Xush kelibsiz, ${name}!`, 'success');
     App.startApp();
   },
 
-  login() {
+  // ================== KIRISH ==================
+  async login() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
     const remember = document.getElementById('rememberMe').checked;
 
     const user = UsersRepo.findByEmail(email);
-    if (!user || user.password !== password) {
+    if (!user || !(await PasswordUtils.verifyPassword(password, user.password))) {
       UI.toast("Email yoki parol noto'g'ri", 'error');
       return;
     }
+
     UsersRepo.setSession(user.id, remember);
     UI.toast(`Xush kelibsiz, ${user.name}!`, 'success');
     App.startApp();
@@ -72,15 +74,56 @@ const Auth = {
 
   logout() {
     UI.confirm({
-      title: 'Chiqishni tasdiqlang',
+      title: 'Chiqish',
       text: 'Hisobingizdan chiqmoqchimisiz?',
-      okLabel: 'Chiqish',
       onConfirm: () => {
         UsersRepo.clearSession();
-        document.getElementById('appShell').style.display = 'none';
-        document.getElementById('auth').style.display = 'flex';
-        UI.toast('Tizimdan chiqdingiz');
+        location.reload();
       }
     });
   }
+};
+
+// Parol Hash Utils
+const PasswordUtils = {
+  async hash(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hash))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  },
+
+  async verifyPassword(inputPass, storedHash) {
+    const inputHash = await this.hash(inputPass);
+    return inputHash === storedHash;
+  }
+};
+
+
+// ================== PAROL KO'ZCHA (SHOW / HIDE) ==================
+function initPasswordToggles() {
+  const toggles = document.querySelectorAll('.password-toggle');
+  
+  toggles.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const input = this.previousElementSibling;
+      
+      if (input.type === "password") {
+        input.type = "text";
+        this.textContent = "🙈";
+      } else {
+        input.type = "password";
+        this.textContent = "👁️";
+      }
+    });
+  });
+}
+
+// Auth init ga ulash
+const originalInit = Auth.init;
+Auth.init = function() {
+  originalInit.call(this);
+  setTimeout(initPasswordToggles, 800); // sahifa yuklangandan keyin
 };

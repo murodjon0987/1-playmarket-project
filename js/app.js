@@ -12,6 +12,9 @@ const App = {
     this.seedIfNeeded();
     Auth.init();
     Wardrobe.init();
+    CalendarUI.init();
+    ContactUI.init();
+    DonateUI.init();
     this.bindGlobalNav();
     this.bindSettings();
     UI.initBackToTop();
@@ -52,6 +55,7 @@ const App = {
     }
     UI.navigateTo('home');
     this.mockWeather();
+    ProgressRepo.recordLoginAndGetStreak();
   },
 
   bindGlobalNav() {
