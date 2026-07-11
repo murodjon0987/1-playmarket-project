@@ -7,17 +7,18 @@
  * -----------------------------------------------------------------------
  */
 const STORAGE_KEYS = {
-  USERS: 'kiyimim_users',
-  SESSION: 'kiyimim_session',
-  ITEMS: 'kiyimim_items',
-  SETTINGS: 'kiyimim_settings',
-  ACTIVITY: 'kiyimim_activity',
-  SEEDED: 'kiyimim_seeded',
-  OUTFITS: 'kiyimim_outfits',
-  WEAR_LOG: 'kiyimim_wear_log',
-  AI_USAGE: 'kiyimim_ai_usage',
-  LOGIN_DATES: 'kiyimim_login_dates',
-  CONTACT_MESSAGES: 'kiyimim_contact_messages'
+  USERS: "kiyimim_users",
+  SESSION: "kiyimim_session",
+  ITEMS: "kiyimim_items",
+  SETTINGS: "kiyimim_settings",
+  ACTIVITY: "kiyimim_activity",
+  SEEDED: "kiyimim_seeded",
+  LEGACY_CLEANED: "kiyimim_legacy_cleaned",
+  OUTFITS: "kiyimim_outfits",
+  WEAR_LOG: "kiyimim_wear_log",
+  AI_USAGE: "kiyimim_ai_usage",
+  LOGIN_DATES: "kiyimim_login_dates",
+  CONTACT_MESSAGES: "kiyimim_contact_messages",
 };
 
 const Storage = {
@@ -52,9 +53,9 @@ const Storage = {
   },
 
   /** Unikal ID generatori (vaqt + tasodifiy raqam) */
-  uid(prefix = 'id') {
+  uid(prefix = "id") {
     return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-  }
+  },
 };
 
 /* ==========================================================================
@@ -68,16 +69,16 @@ const ItemsRepo = {
     return Storage.set(STORAGE_KEYS.ITEMS, list);
   },
   findById(id) {
-    return this.all().find(it => it.id === id) || null;
+    return this.all().find((it) => it.id === id) || null;
   },
   create(item) {
     const list = this.all();
     const newItem = {
-      id: Storage.uid('item'),
+      id: Storage.uid("item"),
       createdAt: Date.now(),
       wearCount: 0,
       isFavorite: false,
-      ...item
+      ...item,
     };
     list.unshift(newItem);
     this.save(list);
@@ -85,21 +86,21 @@ const ItemsRepo = {
   },
   update(id, patch) {
     const list = this.all();
-    const idx = list.findIndex(it => it.id === id);
+    const idx = list.findIndex((it) => it.id === id);
     if (idx === -1) return null;
     list[idx] = { ...list[idx], ...patch, updatedAt: Date.now() };
     this.save(list);
     return list[idx];
   },
   remove(id) {
-    const list = this.all().filter(it => it.id !== id);
+    const list = this.all().filter((it) => it.id !== id);
     this.save(list);
   },
   toggleFavorite(id) {
     const item = this.findById(id);
     if (!item) return null;
     return this.update(id, { isFavorite: !item.isFavorite });
-  }
+  },
 };
 
 /* ==========================================================================
@@ -113,11 +114,14 @@ const UsersRepo = {
     return Storage.set(STORAGE_KEYS.USERS, list);
   },
   findByEmail(email) {
-    return this.all().find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
+    return (
+      this.all().find((u) => u.email.toLowerCase() === email.toLowerCase()) ||
+      null
+    );
   },
   create(user) {
     const list = this.all();
-    const newUser = { id: Storage.uid('user'), createdAt: Date.now(), ...user };
+    const newUser = { id: Storage.uid("user"), createdAt: Date.now(), ...user };
     list.push(newUser);
     this.save(list);
     return newUser;
@@ -126,7 +130,11 @@ const UsersRepo = {
     return Storage.get(STORAGE_KEYS.SESSION, null);
   },
   setSession(userId, remember) {
-    Storage.set(STORAGE_KEYS.SESSION, { userId, remember, loginAt: Date.now() });
+    Storage.set(STORAGE_KEYS.SESSION, {
+      userId,
+      remember,
+      loginAt: Date.now(),
+    });
   },
   clearSession() {
     Storage.remove(STORAGE_KEYS.SESSION);
@@ -134,8 +142,8 @@ const UsersRepo = {
   getCurrent() {
     const session = this.getSession();
     if (!session) return null;
-    return this.all().find(u => u.id === session.userId) || null;
-  }
+    return this.all().find((u) => u.id === session.userId) || null;
+  },
 };
 
 /* ==========================================================================
@@ -145,11 +153,11 @@ const ActivityRepo = {
   all() {
     return Storage.get(STORAGE_KEYS.ACTIVITY, []);
   },
-  add(text, icon = 'ic-shirt') {
+  add(text, icon = "ic-shirt") {
     const list = this.all();
-    list.unshift({ id: Storage.uid('act'), text, icon, time: Date.now() });
+    list.unshift({ id: Storage.uid("act"), text, icon, time: Date.now() });
     Storage.set(STORAGE_KEYS.ACTIVITY, list.slice(0, 15));
-  }
+  },
 };
 
 /* ==========================================================================
@@ -164,17 +172,21 @@ const OutfitsRepo = {
   },
   create(outfit) {
     const list = this.all();
-    const newOutfit = { id: Storage.uid('outfit'), createdAt: Date.now(), ...outfit };
+    const newOutfit = {
+      id: Storage.uid("outfit"),
+      createdAt: Date.now(),
+      ...outfit,
+    };
     list.unshift(newOutfit);
     this.save(list);
     return newOutfit;
   },
   findById(id) {
-    return this.all().find(o => o.id === id) || null;
+    return this.all().find((o) => o.id === id) || null;
   },
   remove(id) {
-    this.save(this.all().filter(o => o.id !== id));
-  }
+    this.save(this.all().filter((o) => o.id !== id));
+  },
 };
 
 /* ==========================================================================
@@ -189,25 +201,32 @@ const WearLogRepo = {
   },
   /** YYYY-MM-DD formatidagi sana uchun yozuvni topish */
   findByDate(dateStr) {
-    return this.all().find(l => l.date === dateStr) || null;
+    return this.all().find((l) => l.date === dateStr) || null;
   },
   /** Sanaga kiyimlar ro'yxatini saqlash (mavjud bo'lsa yangilaydi) */
   setForDate(dateStr, itemIds, outfitId = null) {
     const list = this.all();
-    const idx = list.findIndex(l => l.date === dateStr);
-    const entry = { id: idx > -1 ? list[idx].id : Storage.uid('wear'), date: dateStr, itemIds, outfitId, loggedAt: Date.now() };
-    if (idx > -1) list[idx] = entry; else list.push(entry);
+    const idx = list.findIndex((l) => l.date === dateStr);
+    const entry = {
+      id: idx > -1 ? list[idx].id : Storage.uid("wear"),
+      date: dateStr,
+      itemIds,
+      outfitId,
+      loggedAt: Date.now(),
+    };
+    if (idx > -1) list[idx] = entry;
+    else list.push(entry);
     this.save(list);
     // Har bir kiyimning "necha marta kiyilgan" hisobini yangilash
-    itemIds.forEach(id => {
+    itemIds.forEach((id) => {
       const item = ItemsRepo.findById(id);
       if (item) ItemsRepo.update(id, { wearCount: (item.wearCount || 0) + 1 });
     });
     return entry;
   },
   removeByDate(dateStr) {
-    this.save(this.all().filter(l => l.date !== dateStr));
-  }
+    this.save(this.all().filter((l) => l.date !== dateStr));
+  },
 };
 
 /* ==========================================================================
@@ -230,7 +249,7 @@ const ProgressRepo = {
     Storage.set(STORAGE_KEYS.LOGIN_DATES, [...dates]);
     return this.getStreak();
   },
-  /** Yozuvni o'zgartirmasdan, hozirgi ketma-ket kunlar sonini hisoblaydi (Yutuqlar sahifasi uchun) */
+  /** Ma'lumotlarni o'zgartirmasdan, joriy ketma-ket kunlar sonini hisoblaydi */
   getStreak() {
     const dates = new Set(Storage.get(STORAGE_KEYS.LOGIN_DATES, []));
     let streak = 0;
@@ -243,7 +262,7 @@ const ProgressRepo = {
       } else break;
     }
     return streak;
-  }
+  },
 };
 
 /* ==========================================================================
@@ -255,9 +274,9 @@ const ContactRepo = {
   },
   add(message) {
     const list = this.all();
-    list.unshift({ id: Storage.uid('msg'), createdAt: Date.now(), ...message });
+    list.unshift({ id: Storage.uid("msg"), createdAt: Date.now(), ...message });
     Storage.set(STORAGE_KEYS.CONTACT_MESSAGES, list);
-  }
+  },
 };
 
 /* ==========================================================================
@@ -265,10 +284,13 @@ const ContactRepo = {
    ========================================================================== */
 const SettingsRepo = {
   get() {
-    return Storage.get(STORAGE_KEYS.SETTINGS, { theme: 'light', notifications: true });
+    return Storage.get(STORAGE_KEYS.SETTINGS, {
+      theme: "light",
+      notifications: true,
+    });
   },
   set(patch) {
     const current = this.get();
     Storage.set(STORAGE_KEYS.SETTINGS, { ...current, ...patch });
-  }
+  },
 };

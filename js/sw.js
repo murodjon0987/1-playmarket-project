@@ -1,18 +1,15 @@
 /**
  * sw.js
  * -----------------------------------------------------------------------
- * Kiyimim AI uchun oddiy service worker: ilova qobig'ini (HTML/CSS/JS)
- * keshga oladi, shu bilan ilova internetsiz ham ochilishi mumkin.
- * Ma'lumotlar (kiyimlar, hisob va h.k.) baribir localStorage'da saqlanadi,
- * bu fayl faqat statik fayllarni offline yuklash uchun javobgar.
+ * Oddiy service worker: ilova qobig'ini (app shell) keshlab, offline
+ * rejimda ham asosiy interfeys ochilishini ta'minlaydi. Ma'lumotlarning
+ * o'zi baribir foydalanuvchi qurilmasidagi localStorage'da saqlanadi.
  * -----------------------------------------------------------------------
  */
-const CACHE_NAME = 'kiyimim-ai-v1';
+const CACHE_NAME = 'kiyimim-ai-v2';
 const APP_SHELL = [
   './',
   './index.html',
-  './manifest.json',
-  './icon512.svg',
   './css/style.css',
   './js/storage.js',
   './js/data.js',
@@ -20,42 +17,41 @@ const APP_SHELL = [
   './js/auth.js',
   './js/wardrobe.js',
   './js/ai.js',
+  './js/features.js',
   './js/app.js',
-  './js/features.js'
+  './manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).catch(() => {})
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
-    ).then(() => self.clients.claim())
+    caches.keys().then((names) =>
+      Promise.all(names.filter((n) => n !== CACHE_NAME).map((n) => caches.delete(n)))
+    )
   );
+  self.clients.claim();
 });
 
-// Cache-first strategiya: avval keshdan, topilmasa tarmoqdan, u ham bo'lmasa index.html (offline fallback)
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then(response => {
-          if (response && response.ok && response.type === 'basic') {
+    caches.match(event.request).then((cached) => {
+      const network = fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
             const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           }
           return response;
         })
-        .catch(() => caches.match('./index.html'));
+        .catch(() => cached);
+      return cached || network;
     })
   );
 });

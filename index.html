@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
   <title>Kiyimim AI — Har kun uchun aqlli kiyinish yordamchisi</title>
-  <link rel="stylesheet" href="/css/style.css">
   <meta name="description"
     content="Kiyimim AI — sun'iy intellekt yordamida garderobingizni boshqaring va har kunga mos kiyim tavsiyalarini oling.">
   <meta name="theme-color" content="#2563EB">
@@ -15,6 +14,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -227,6 +227,7 @@
             </svg>
             <span id="weatherText">Ob-havo...</span>
           </button>
+          <span class="chip chip-streak" id="streakChip" hidden></span>
         </div>
       </header>
 
@@ -276,6 +277,12 @@
           <button class="quick-btn" data-nav="ai"><svg viewBox="0 0 24 24">
               <use href="#ic-ai" />
             </svg><span>AI tavsiya</span></button>
+          <button class="quick-btn" id="surpriseMeBtn"><svg viewBox="0 0 24 24">
+              <use href="#ic-star" />
+            </svg><span>Hayratda qoldir</span></button>
+          <button class="quick-btn" data-nav="travel"><svg viewBox="0 0 24 24">
+              <use href="#ic-gift" />
+            </svg><span>Sayohat ro'yxati</span></button>
           <button class="quick-btn" data-nav="favorites"><svg viewBox="0 0 24 24">
               <use href="#ic-heart" />
             </svg><span>Sevimlilar</span></button>
@@ -298,14 +305,31 @@
       <header class="page-header">
         <h1>Kiyimlarim</h1>
         <div class="page-header-actions">
+          <button class="icon-btn" id="sortToggleBtn"><svg viewBox="0 0 24 24">
+              <use href="#ic-chart" />
+            </svg></button>
           <button class="icon-btn" id="searchToggleBtn"><svg viewBox="0 0 24 24">
               <use href="#ic-search" />
             </svg></button>
           <button class="icon-btn" id="filterToggleBtn"><svg viewBox="0 0 24 24">
               <use href="#ic-filter" />
             </svg><span class="badge" id="filterBadge" hidden></span></button>
+          <button class="icon-btn" id="multiSelectToggleBtn"><svg viewBox="0 0 24 24">
+              <use href="#ic-check" />
+            </svg></button>
         </div>
       </header>
+
+      <div class="sort-menu" id="sortMenu">
+        <button class="chip-opt active" data-sort="new">Eng yangi</button>
+        <button class="chip-opt" data-sort="name">Nomi bo'yicha</button>
+        <button class="chip-opt" data-sort="worn">Eng ko'p kiyilgan</button>
+      </div>
+
+      <div class="bulk-bar" id="bulkBar" hidden>
+        <span id="bulkCount">0 ta tanlandi</span>
+        <button class="btn btn-danger-outline" id="bulkDeleteBtn">O'chirish</button>
+      </div>
 
       <div class="search-bar" id="searchBar">
         <svg viewBox="0 0 24 24">
@@ -369,15 +393,9 @@
           </div>
         </div>
 
-        <div class="field-row">
-          <div class="field">
-            <label>Brend</label>
-            <input type="text" id="itemBrand" placeholder="Masalan: Zara">
-          </div>
-          <div class="field">
-            <label>Narx (so'm)</label>
-            <input type="number" id="itemPrice" placeholder="0" min="0">
-          </div>
+        <div class="field">
+          <label>Brend</label>
+          <input type="text" id="itemBrand" placeholder="Masalan: Zara">
         </div>
 
         <div class="field-row">
@@ -401,6 +419,14 @@
         </div>
 
         <div class="field">
+          <label>Kirlik holati</label>
+          <div class="segmented" id="itemLaundrySeg">
+            <button type="button" class="seg-btn active" data-value="toza">🧼 Toza</button>
+            <button type="button" class="seg-btn" data-value="kirli">🧺 Kirli</button>
+          </div>
+        </div>
+
+        <div class="field">
           <label>Izoh</label>
           <textarea id="itemNote" rows="3" placeholder="Qo'shimcha izoh..."></textarea>
         </div>
@@ -419,6 +445,12 @@
       <section class="section-block">
         <p class="ai-intro">Vaziyatni tanlang, AI garderobingizdagi eng mos kombinatsiyani tayyorlaydi.</p>
         <div class="occasion-grid" id="occasionGrid"></div>
+        <button class="btn btn-secondary btn-block" data-nav="chat" style="margin-top:14px">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px">
+            <use href="#ic-ai" />
+          </svg>
+          AI bilan suhbatlashish
+        </button>
       </section>
 
       <section class="section-block" id="aiResultWrap" hidden>
@@ -437,6 +469,7 @@
             </div>
           </div>
           <div class="ai-outfit-grid" id="aiOutfitGrid"></div>
+          <p class="color-harmony-note" id="colorHarmonyNote"></p>
           <div class="ai-result-actions">
             <button class="btn btn-secondary" id="saveOutfitBtn">
               <svg viewBox="0 0 24 24" style="width:18px;height:18px">
@@ -451,6 +484,12 @@
               Yangilash
             </button>
           </div>
+          <button class="btn btn-secondary btn-block" id="shareOutfitBtn" style="margin-top:10px">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px">
+              <use href="#ic-send" />
+            </svg>
+            Rasm sifatida yuklab olish
+          </button>
         </div>
       </section>
 
@@ -555,6 +594,15 @@
               <use href="#ic-star" />
             </svg></span>
           <span>Saqlangan outfitlar</span>
+          <svg class="chev" viewBox="0 0 24 24">
+            <use href="#ic-chevron" />
+          </svg>
+        </button>
+        <button class="profile-item" data-nav="wishlist">
+          <span class="profile-item-icon"><svg viewBox="0 0 24 24">
+              <use href="#ic-gift" />
+            </svg></span>
+          <span>Kerak narsalar</span>
           <svg class="chev" viewBox="0 0 24 24">
             <use href="#ic-chevron" />
           </svg>
@@ -673,6 +721,16 @@
             <use href="#ic-chevron" />
           </svg>
         </button>
+        <button class="settings-row settings-row-btn" id="importBtn">
+          <span class="settings-row-icon"><svg viewBox="0 0 24 24">
+              <use href="#ic-send" />
+            </svg></span>
+          <span>Zaxiradan tiklash (import)</span>
+          <svg class="chev" viewBox="0 0 24 24">
+            <use href="#ic-chevron" />
+          </svg>
+        </button>
+        <input type="file" id="importFileInput" accept="application/json" hidden>
         <button class="settings-row settings-row-btn" id="privacyBtn">
           <span class="settings-row-icon"><svg viewBox="0 0 24 24">
               <use href="#ic-shield" />
@@ -764,20 +822,20 @@
       <p class="ai-intro">Taklif, shikoyat yoki savolingiz bo'lsa — bemalol yozing. Sizga tez orada javob beramiz.</p>
 
       <div class="contact-channels">
-        <a class="contact-channel" href="kiyimim.ai@gmail.com">
+        <a class="contact-channel" href="mailto:support@kiyimim.ai">
           <span class="settings-row-icon"><svg viewBox="0 0 24 24">
               <use href="#ic-mail" />
             </svg></span>
           <div>
-            <p>Email:</p><span>kiyimim.ai@gmail.com</span>
+            <p>Email</p><span>support@kiyimim.ai</span>
           </div>
         </a>
-        <a class="contact-channel" href="https://t.me/wenzone72" target="_blank" rel="noopener">
+        <a class="contact-channel" href="https://t.me/kiyimim_ai" target="_blank" rel="noopener">
           <span class="settings-row-icon"><svg viewBox="0 0 24 24">
               <use href="#ic-send" />
             </svg></span>
           <div>
-            <p>Telegram:</p><span>@wenzone72</span>
+            <p>Telegram</p><span>@kiyimim_ai</span>
           </div>
         </a>
       </div>
@@ -841,13 +899,30 @@
         <div class="section-head">
           <h2>To'lov usuli</h2>
         </div>
-
+        <div class="pay-method-card">
+          <div>
+            <p class="pay-method-title">Payme</p>
+            <p class="pay-method-value">5614 6801 2233 4455</p>
+          </div>
+          <button class="icon-btn copy-btn" data-copy="5614680122334455"><svg viewBox="0 0 24 24">
+              <use href="#ic-copy" />
+            </svg></button>
+        </div>
+        <div class="pay-method-card">
+          <div>
+            <p class="pay-method-title">Click</p>
+            <p class="pay-method-value">9860 1234 5678 9012</p>
+          </div>
+          <button class="icon-btn copy-btn" data-copy="9860123456789012"><svg viewBox="0 0 24 24">
+              <use href="#ic-copy" />
+            </svg></button>
+        </div>
         <div class="pay-method-card">
           <div>
             <p class="pay-method-title">Bank kartasi</p>
-            <p class="pay-method-value">4067 0700 0861 0359</p>
+            <p class="pay-method-value">8600 1122 3344 5566</p>
           </div>
-          <button class="icon-btn copy-btn" data-copy="4067070008610359"><svg viewBox="0 0 24 24">
+          <button class="icon-btn copy-btn" data-copy="8600112233445566"><svg viewBox="0 0 24 24">
               <use href="#ic-copy" />
             </svg></button>
         </div>
@@ -862,8 +937,79 @@
       <p class="donate-disclaimer">Bu — demo sahifa: real to'lov amalga oshirilmaydi, faqat rekvizitlar nusxalanadi.</p>
     </main>
 
+    <!-- ---- WISHLIST ---- -->
+    <main id="view-wishlist" class="view">
+      <header class="page-header">
+        <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24">
+            <use href="#ic-back" />
+          </svg></button>
+        <h1>Kerak narsalar</h1>
+        <span style="width:44px"></span>
+      </header>
+      <p class="ai-intro">Garderobingizda yetishmayotgan narsalarni yozib qo'ying, keyinroq xarid ro'yxati sifatida
+        ishlating.</p>
+      <form id="wishlistForm" class="wishlist-form">
+        <input type="text" id="wishlistInput" placeholder="Masalan: Qora klassik tufli" required>
+        <button type="submit" class="btn btn-primary"><svg viewBox="0 0 24 24" style="width:18px;height:18px">
+            <use href="#ic-plus" />
+          </svg></button>
+      </form>
+      <ul class="wishlist-list" id="wishlistList"></ul>
+      <div class="empty-state" id="wishlistEmpty" hidden>
+        <svg viewBox="0 0 24 24">
+          <use href="#ic-star" />
+        </svg>
+        <h3>Ro'yxat bo'sh</h3>
+        <p>Kerakli kiyim yoki aksessuarni yuqoridan qo'shing.</p>
+      </div>
+    </main>
 
+    <!-- ---- AI CHAT ---- -->
+    <main id="view-chat" class="view">
+      <header class="page-header">
+        <button class="icon-btn" data-nav="ai"><svg viewBox="0 0 24 24">
+            <use href="#ic-back" />
+          </svg></button>
+        <h1>AI Chat</h1>
+        <span style="width:44px"></span>
+      </header>
+      <p class="ai-intro">Kiyinish bo'yicha xohlagan savolingizni bering — AI garderobingizni hisobga olib javob beradi.
+      </p>
+      <div class="chat-messages" id="chatMessages"></div>
+      <form class="chat-input-bar" id="chatForm">
+        <input type="text" id="chatInput" placeholder="Masalan: Bugun sovuq, nima kiysam bo'ladi?" autocomplete="off"
+          required>
+        <button type="submit" class="icon-btn" id="chatSendBtn"><svg viewBox="0 0 24 24">
+            <use href="#ic-send" />
+          </svg></button>
+      </form>
+    </main>
 
+    <!-- ---- SAYOHAT RO'YXATI ---- -->
+    <main id="view-travel" class="view">
+      <header class="page-header">
+        <button class="icon-btn" data-nav="home"><svg viewBox="0 0 24 24">
+            <use href="#ic-back" />
+          </svg></button>
+        <h1>Sayohat ro'yxati</h1>
+        <span style="width:44px"></span>
+      </header>
+      <p class="ai-intro">Necha kunlik sayohat ekanini kiriting — garderobingizdan avtomatik ro'yxat tuziladi.</p>
+      <div class="field-row" style="margin-bottom:16px">
+        <div class="field">
+          <label>Necha kun</label>
+          <input type="number" id="travelDays" value="3" min="1" max="30">
+        </div>
+        <div class="field">
+          <label>Fasl</label>
+          <select id="travelSeason"></select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" id="travelGenerateBtn">Ro'yxat tuzish</button>
+      <div class="section-block" style="margin-top:22px">
+        <div class="travel-checklist" id="travelChecklist"></div>
+      </div>
+    </main>
 
     <!-- ---- BOTTOM NAVIGATION ---- -->
     <nav class="bottom-nav glass">
@@ -904,12 +1050,6 @@
         <div class="chip-select" id="filterColor"></div>
         <p class="filter-label">Fasl</p>
         <div class="chip-select" id="filterSeason"></div>
-        <p class="filter-label">Narx oralig'i</p>
-        <div class="price-range">
-          <input type="number" id="filterPriceMin" placeholder="Dan">
-          <span>—</span>
-          <input type="number" id="filterPriceMax" placeholder="Gacha">
-        </div>
       </div>
       <button class="btn btn-primary btn-block" id="filterApply">Qo'llash</button>
     </div>
@@ -971,18 +1111,14 @@
     <p id="successText">Saqlandi!</p>
   </div>
 
-  <script src="/js/storage.js"></script>
-  <script src="/js/data.js"></script>
-  <script src="/js/ui.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/wardrobe.js"></script>
-  <script src="/js/ai.js"></script>
-  <script src="/js/app.js"></script>
-  <script src="/js/features.js"></script>
-  <script src="/js/premium.js"></script>
-  <script src="/js/sw.js"></script>
-  <script src="/js/enhancements.js"></script>
-  <script src="/js/recommendation.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/wardrobe.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/features.js"></script>
+  <script src="js/app.js"></script>
   <script>
     // PWA: offline arxitektura uchun service worker ro'yxatdan o'tkazish
     if ('serviceWorker' in navigator) {
