@@ -27,6 +27,10 @@ const UI = {
       behavior: "instant" in window ? "instant" : "auto",
     });
 
+    document
+      .querySelector(".bottom-nav")
+      .classList.toggle("hide-for-chat", viewName === "chat");
+
     // Sahifaga kirishda tegishli render funksiyasini chaqirish
     const refreshMap = {
       home: () => App.renderHome(),
@@ -130,5 +134,15 @@ const UI = {
     selectEl.innerHTML = options
       .map((o) => `<option value="${o[valueKey]}">${o[labelKey]}</option>`)
       .join("");
+  },
+
+  /** Tez-tez chaqiriladigan funksiyalarni (masalan qidiruv) kechiktirib
+   *  ishga tushiradi — har harf terilganda emas, yozish to'xtagandan keyin */
+  debounce(fn, delay = 250) {
+    let timer = null;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
   },
 };

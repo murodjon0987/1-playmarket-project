@@ -15,7 +15,7 @@ const Wardrobe = {
     editingId: null,
     selectedCondition: "Yangi",
     selectedLaundry: "toza",
-    photoData: null,
+    photos: [],
     sortMode: "new",
     bulkMode: false,
     bulkSelected: new Set(),
@@ -34,15 +34,30 @@ const Wardrobe = {
      RO'YXATNI RENDER QILISH
   --------------------------------------------------------------------- */
   getFilteredItems() {
-    let items = ItemsRepo.all();
+    // Oddiy memoizatsiya: agar holat (search/category/filters/sort) va
+    // ma'lumotlar oxirgi chaqiruvdan beri o'zgarmagan bo'lsa, qayta hisoblamaymiz.
+    const items = ItemsRepo.all();
+    const cacheKey = JSON.stringify({
+      search: this.state.search,
+      cat: this.state.activeCategory,
+      filters: this.state.filters,
+      sort: this.state.sortMode,
+      len: items.length,
+      lastUpdated: items[0]?.updatedAt || items[0]?.createdAt || 0,
+    });
+    if (this._cacheKey === cacheKey && this._cacheResult) {
+      return this._cacheResult;
+    }
+
+    let filtered = items;
     const { search, activeCategory, filters } = this.state;
 
     if (activeCategory !== "all") {
-      items = items.filter((it) => it.category === activeCategory);
+      filtered = filtered.filter((it) => it.category === activeCategory);
     }
     if (search.trim()) {
       const q = search.trim().toLowerCase();
-      items = items.filter(
+      filtered = filtered.filter(
         (it) =>
           it.name.toLowerCase().includes(q) ||
           (it.brand || "").toLowerCase().includes(q) ||
@@ -51,25 +66,31 @@ const Wardrobe = {
       );
     }
     if (filters.category.length)
-      items = items.filter((it) => filters.category.includes(it.category));
+      filtered = filtered.filter((it) =>
+        filters.category.includes(it.category),
+      );
     if (filters.color.length)
-      items = items.filter((it) => filters.color.includes(it.color));
+      filtered = filtered.filter((it) => filters.color.includes(it.color));
     if (filters.season.length)
-      items = items.filter((it) => filters.season.includes(it.season));
+      filtered = filtered.filter((it) => filters.season.includes(it.season));
 
     if (this.state.sortMode === "name") {
-      items = [...items].sort((a, b) => a.name.localeCompare(b.name, "uz"));
+      filtered = [...filtered].sort((a, b) =>
+        a.name.localeCompare(b.name, "uz"),
+      );
     } else if (this.state.sortMode === "worn") {
-      items = [...items].sort(
+      filtered = [...filtered].sort(
         (a, b) => (b.wearCount || 0) - (a.wearCount || 0),
       );
     } else {
-      items = [...items].sort(
+      filtered = [...filtered].sort(
         (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
       );
     }
 
-    return items;
+    this._cacheKey = cacheKey;
+    this._cacheResult = filtered;
+    return filtered;
   },
 
   render() {
@@ -156,7 +177,6 @@ const Wardrobe = {
           this.state.bulkSelected.clear();
           this.updateBulkBar();
           this.render();
-          App.renderHome();
         },
       });
     });
@@ -165,14 +185,18 @@ const Wardrobe = {
   cardTemplate(it, index) {
     const color = colorInfo(it.color);
     const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
+    const photos =
+      it.photos && it.photos.length ? it.photos : it.photo ? [it.photo] : [];
+    const cover = photos[0];
     return `
       <article class="item-card" data-id="${it.id}" style="animation-delay:${index * 0.03}s">
-        <div class="item-card-img" style="${it.photo ? "" : `background:${gradient}`}">
+        <div class="item-card-img" style="${cover ? "" : `background:${gradient}`}">
           ${
-            it.photo
-              ? `<img src="${it.photo}" alt="${it.name}">`
+            cover
+              ? `<img src="${cover}" alt="${it.name}">`
               : `<div class="no-img"><svg viewBox="0 0 24 24"><use href="#ic-shirt"/></svg></div>`
           }
+          ${photos.length > 1 ? `<span class="photo-count-badge">${photos.length} 📷</span>` : ""}
           ${it.laundry === "kirli" ? `<span class="laundry-badge">Kirli</span>` : ""}
           <button class="fav-toggle ${it.isFavorite ? "is-fav" : ""}" data-id="${it.id}">
             <svg viewBox="0 0 24 24"><use href="#ic-heart"/></svg>
@@ -219,6 +243,8 @@ const Wardrobe = {
     const input = document.getElementById("searchInput");
     const clearBtn = document.getElementById("searchClear");
 
+    const debouncedRender = UI.debounce(() => this.render(), 220);
+
     toggleBtn.addEventListener("click", () => {
       bar.classList.toggle("show");
       if (bar.classList.contains("show")) input.focus();
@@ -226,7 +252,7 @@ const Wardrobe = {
     input.addEventListener("input", () => {
       this.state.search = input.value;
       clearBtn.hidden = !input.value;
-      this.render();
+      debouncedRender();
     });
     clearBtn.addEventListener("click", () => {
       input.value = "";
@@ -360,7 +386,6 @@ const Wardrobe = {
           UI.toast("Kiyim o'chirildi", "success");
           this.render();
           this.renderFavorites();
-          App.renderHome();
         },
       });
     });
@@ -376,10 +401,35 @@ const Wardrobe = {
     document.getElementById("detailNote").textContent =
       it.note || "Izoh qo'shilmagan.";
 
+    const photos =
+      it.photos && it.photos.length ? it.photos : it.photo ? [it.photo] : [];
     const photoWrap = document.getElementById("detailPhoto");
-    photoWrap.innerHTML = it.photo
-      ? `<img src="${it.photo}" alt="${it.name}">`
-      : `<svg viewBox="0 0 24 24"><use href="#ic-shirt"/></svg>`;
+    const dotsWrap = document.getElementById("detailPhotoDots");
+    if (photos.length) {
+      photoWrap.innerHTML = photos
+        .map(
+          (p) =>
+            `<div class="detail-photo-slide"><img src="${p}" alt="${it.name}"></div>`,
+        )
+        .join("");
+      dotsWrap.innerHTML =
+        photos.length > 1
+          ? photos
+              .map((_, i) => `<span class="${i === 0 ? "active" : ""}"></span>`)
+              .join("")
+          : "";
+      if (photos.length > 1) {
+        photoWrap.onscroll = () => {
+          const idx = Math.round(photoWrap.scrollLeft / photoWrap.clientWidth);
+          dotsWrap
+            .querySelectorAll("span")
+            .forEach((d, i) => d.classList.toggle("active", i === idx));
+        };
+      }
+    } else {
+      photoWrap.innerHTML = `<div class="detail-photo-slide"><svg viewBox="0 0 24 24"><use href="#ic-shirt"/></svg></div>`;
+      dotsWrap.innerHTML = "";
+    }
 
     const color = colorInfo(it.color);
     document.getElementById("detailTags").innerHTML = `
@@ -412,11 +462,10 @@ const Wardrobe = {
     this.state.editingId = null;
     this.state.selectedCondition = "Yangi";
     this.state.selectedLaundry = "toza";
-    this.state.photoData = null;
+    this.state.photos = [];
     document.getElementById("itemForm").reset();
     document.getElementById("itemId").value = "";
-    document.getElementById("photoPreview").hidden = true;
-    document.getElementById("photoPlaceholder").style.display = "flex";
+    this.renderPhotoGallery();
     document
       .querySelectorAll("#itemConditionSeg .seg-btn")
       .forEach((b) =>
@@ -435,7 +484,12 @@ const Wardrobe = {
     this.state.editingId = id;
     this.state.selectedCondition = it.condition;
     this.state.selectedLaundry = it.laundry || "toza";
-    this.state.photoData = it.photo || null;
+    this.state.photos =
+      it.photos && it.photos.length
+        ? [...it.photos]
+        : it.photo
+          ? [it.photo]
+          : [];
 
     document.getElementById("itemId").value = id;
     document.getElementById("itemName").value = it.name;
@@ -445,6 +499,7 @@ const Wardrobe = {
     document.getElementById("itemSeason").value = it.season;
     document.getElementById("itemMaterial").value = it.material || "";
     document.getElementById("itemNote").value = it.note || "";
+    this.renderPhotoGallery();
 
     document
       .querySelectorAll("#itemConditionSeg .seg-btn")
@@ -460,33 +515,80 @@ const Wardrobe = {
         ),
       );
 
-    if (it.photo) {
-      document.getElementById("photoPreview").src = it.photo;
-      document.getElementById("photoPreview").hidden = false;
-      document.getElementById("photoPlaceholder").style.display = "none";
-    }
+    document
+      .querySelectorAll("#itemConditionSeg .seg-btn")
+      .forEach((b) =>
+        b.classList.toggle("active", b.dataset.value === it.condition),
+      );
+    document
+      .querySelectorAll("#itemLaundrySeg .seg-btn")
+      .forEach((b) =>
+        b.classList.toggle(
+          "active",
+          b.dataset.value === (it.laundry || "toza"),
+        ),
+      );
+
     document.getElementById("addFormTitle").textContent = "Kiyimni tahrirlash";
     document.getElementById("itemSaveBtn").textContent =
       "O'zgarishlarni saqlash";
     UI.navigateTo("add");
   },
 
+  /** Rasm gallereyasini (yuklangan rasmlar + "qo'shish" tugmasi) qayta chizadi */
+  renderPhotoGallery() {
+    const gallery = document.getElementById("photoGallery");
+    const addBtnHtml = `
+      <div class="photo-thumb photo-thumb-add" id="photoAddBtn">
+        <svg viewBox="0 0 24 24"><use href="#ic-camera"/></svg>
+        <span>Rasm qo'shish</span>
+      </div>`;
+    const photosHtml = this.state.photos
+      .map(
+        (src, i) => `
+      <div class="photo-thumb" data-photo-index="${i}">
+        <img src="${src}" alt="Rasm ${i + 1}">
+        ${i === 0 ? '<span class="photo-thumb-cover">Asosiy</span>' : ""}
+        <button type="button" class="photo-thumb-remove" data-remove-photo="${i}">
+          <svg viewBox="0 0 24 24"><use href="#ic-close"/></svg>
+        </button>
+      </div>`,
+      )
+      .join("");
+    gallery.innerHTML =
+      photosHtml + (this.state.photos.length < 6 ? addBtnHtml : "");
+
+    const addBtn = document.getElementById("photoAddBtn");
+    if (addBtn)
+      addBtn.addEventListener("click", () =>
+        document.getElementById("photoInput").click(),
+      );
+    gallery.querySelectorAll("[data-remove-photo]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.state.photos.splice(Number(btn.dataset.removePhoto), 1);
+        this.renderPhotoGallery();
+      });
+    });
+  },
+
   bindForm() {
-    // Rasm yuklash
-    const photoUpload = document.getElementById("photoUpload");
+    // Rasm yuklash — bir nechta fayl birdan tanlash mumkin
     const photoInput = document.getElementById("photoInput");
-    photoUpload.addEventListener("click", () => photoInput.click());
     photoInput.addEventListener("change", () => {
-      const file = photoInput.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.state.photoData = reader.result;
-        document.getElementById("photoPreview").src = reader.result;
-        document.getElementById("photoPreview").hidden = false;
-        document.getElementById("photoPlaceholder").style.display = "none";
-      };
-      reader.readAsDataURL(file);
+      const files = Array.from(photoInput.files).slice(
+        0,
+        6 - this.state.photos.length,
+      );
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.state.photos.push(reader.result);
+          this.renderPhotoGallery();
+        };
+        reader.readAsDataURL(file);
+      });
+      photoInput.value = "";
     });
 
     // Holat segmenti
@@ -542,7 +644,8 @@ const Wardrobe = {
       note,
       condition: this.state.selectedCondition,
       laundry: this.state.selectedLaundry,
-      photo: this.state.photoData,
+      photos: this.state.photos,
+      photo: this.state.photos[0] || null,
     };
 
     if (this.state.editingId) {
@@ -559,6 +662,5 @@ const Wardrobe = {
 
     this.resetForm();
     UI.navigateTo("wardrobe");
-    App.renderHome();
   },
 };

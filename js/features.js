@@ -74,7 +74,6 @@ const OutfitsUI = {
       "ic-calendar",
     );
     UI.toast("Kalendarga qo'shildi va kiyilganlar soni yangilandi", "success");
-    App.renderHome();
   },
 
   remove(id) {
@@ -251,7 +250,6 @@ const CalendarUI = {
       );
       UI.toast("Kalendar yangilandi", "success");
       this.render();
-      App.renderHome();
     });
   },
 };
@@ -419,7 +417,7 @@ const ChatUI = {
     const box = document.getElementById("chatMessages");
     if (box.dataset.rendered) return;
     box.dataset.rendered = "1";
-    box.innerHTML = `<div class="chat-msg ai">Assalomu alaykum! Men Kiyimim AI yordamchisiman. Kiyinish, kombinatsiya yoki garderobingiz haqida savol bering.</div>`;
+    box.innerHTML = `<div class="chat-msg ai">Assalomu alaykum! Men Kiyimim AI yordamchisiman. Kiyinish, kombinatsiya yoki garderobingiz haqida savol bering. (Hozircha demo rejimda ishlayapman — backend ulanganda javoblarim yanada aqlliroq bo'ladi 🙂)</div>`;
   },
 
   buildWardrobeContext() {
@@ -466,35 +464,70 @@ const ChatUI = {
     this.history.push({ role: "user", content: text });
     const typingEl = this.appendTyping();
 
-    try {
-      const systemPrompt = `Sen "Kiyimim AI" ilovasidagi kiyinish bo'yicha maslahatchisan. Faqat o'zbek tilida, qisqa (2-4 jumla), do'stona va foydali javob ber. ${this.buildWardrobeContext()}`;
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 1000,
-          system: systemPrompt,
-          messages: this.history,
-        }),
-      });
-      const data = await response.json();
-      const reply =
-        (data.content || [])
-          .map((b) => b.text || "")
-          .join("\n")
-          .trim() || "Kechirasiz, javob topilmadi.";
-      typingEl.remove();
-      this.appendMessage(reply, "ai");
-      this.history.push({ role: "assistant", content: reply });
-    } catch (err) {
-      console.error("Chat xatosi:", err);
-      typingEl.remove();
-      this.appendMessage(
-        "Kechirasiz, javob berishda xatolik yuz berdi. Internetni tekshirib qayta urinib ko'ring.",
-        "ai",
-      );
+    // Hozircha backend/API kaliti yo'q, shuning uchun qoidaviy (rule-based)
+    // demo javob beramiz. Backend qo'shilgach, shu joyni haqiqiy Anthropic
+    // API chaqiruviga almashtirish kifoya (pastdagi callRealApi() metodiga qarang).
+    await new Promise((r) => setTimeout(r, 500 + Math.random() * 400));
+    const reply = this.generateDemoReply(text);
+    typingEl.remove();
+    this.appendMessage(reply, "ai");
+    this.history.push({ role: "assistant", content: reply });
+  },
+
+  /** Qoidaviy demo javob generatori — kalit so'zlarni aniqlab, garderob
+   *  ma'lumotlaridan foydalanadi. Bu haqiqiy AI emas, lekin backend
+   *  ulanmaguncha ilova ishlab turishi uchun oqilona javob beradi. */
+  generateDemoReply(text) {
+    const q = text.toLowerCase();
+    const items = ItemsRepo.all().filter((it) => it.laundry !== "kirli");
+
+    const pickByCategories = (cats) =>
+      items.find((it) => cats.includes(it.category));
+
+    if (!items.length) {
+      return "Garderobingiz hozircha bo'sh — avval bir nechta kiyim qo'shsangiz, sizga aniqroq maslahat bera olaman.";
     }
+    if (/sovuq|qish|izg'irin/.test(q)) {
+      const warm = pickByCategories(["kurtka", "kostyum"]) || items[0];
+      return `Sovuq havo uchun ${warm.name.toLowerCase()} yaxshi variant bo'ladi. Ustidan issiqroq narsa kiysangiz, muzlab qolmaysiz.`;
+    }
+    if (/issiq|yoz|jazirama/.test(q)) {
+      const light = pickByCategories(["futbolka", "shortik"]) || items[0];
+      return `Issiq kunlar uchun ${light.name.toLowerCase()} qulay bo'ladi — yengil va nafas oladigan matodan tanlang.`;
+    }
+    if (/ish|universitet|rasmiy/.test(q)) {
+      const formal =
+        pickByCategories(["koylak", "kostyum", "shim"]) || items[0];
+      return `Ish yoki universitet uchun ${formal.name.toLowerCase()} mos keladi — sodda va rasmiy ko'rinish beradi.`;
+    }
+    if (/sport|mashq|yugur/.test(q)) {
+      const sport =
+        pickByCategories(["shortik", "futbolka", "krossovka"]) || items[0];
+      return `Sport uchun ${sport.name.toLowerCase()} qulay bo'ladi — harakatga to'sqinlik qilmaydi.`;
+    }
+    if (/mos|qanday|kombinatsiya/.test(q)) {
+      return "Aniqroq maslahat uchun \"AI Tavsiya\" bo'limidan vaziyatni tanlang — men garderobingizdagi kiyimlarni tahlil qilib, to'liq kombinatsiya tayyorlayman.";
+    }
+    return "Tushunarli! Aniqroq javob uchun \"AI Tavsiya\" bo'limidan vaziyat (issiq, sovuq, ish va h.k.) tanlashingizni tavsiya qilaman — u yerda men garderobingizga qarab to'liq kombinatsiya tuzib beraman.";
+  },
+
+  /** Backend qo'shilgach ishlatiladigan haqiqiy Anthropic API chaqiruvi.
+   *  Hozircha send() bu funksiyani chaqirmaydi — API kaliti xavfsiz
+   *  backend proxy orqali kelganda, send() ichida shu metodni chaqiring. */
+  async callRealApi(text) {
+    const systemPrompt = `Sen "Kiyimim AI" ilovasidagi kiyinish bo'yicha maslahatchisan. Faqat o'zbek tilida, qisqa (2-4 jumla), do'stona va foydali javob ber. ${this.buildWardrobeContext()}`;
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ system: systemPrompt, messages: this.history }),
+    });
+    const data = await response.json();
+    return (
+      (data.content || [])
+        .map((b) => b.text || "")
+        .join("\n")
+        .trim() || "Kechirasiz, javob topilmadi."
+    );
   },
 };
 /* ==========================================================================
@@ -554,6 +587,69 @@ const WishlistUI = {
     });
   },
 };
+
+/* ==========================================================================
+   ONBOARDING (faqat birinchi ro'yxatdan o'tishda)
+   ========================================================================== */
+const OnboardingUI = {
+  current: 0,
+  total: 3,
+
+  init() {
+    const dots = document.getElementById("onboardingDots");
+    dots.innerHTML = Array.from(
+      { length: this.total },
+      (_, i) => `<span class="${i === 0 ? "active" : ""}"></span>`,
+    ).join("");
+
+    document
+      .getElementById("onboardingNextBtn")
+      .addEventListener("click", () => this.next());
+    document
+      .getElementById("onboardingSkipBtn")
+      .addEventListener("click", () => this.finish());
+  },
+
+  show() {
+    this.current = 0;
+    document
+      .querySelectorAll(".onboarding-slide")
+      .forEach((s, i) => s.classList.toggle("active", i === 0));
+    document
+      .querySelectorAll("#onboardingDots span")
+      .forEach((d, i) => d.classList.toggle("active", i === 0));
+    document.getElementById("onboardingNextBtn").textContent = "Keyingisi";
+    document.getElementById("onboarding").style.display = "flex";
+  },
+
+  next() {
+    if (this.current >= this.total - 1) {
+      this.finish();
+      return;
+    }
+    document
+      .querySelector(`.onboarding-slide[data-slide="${this.current}"]`)
+      .classList.remove("active");
+    document
+      .querySelectorAll("#onboardingDots span")
+      [this.current].classList.remove("active");
+    this.current++;
+    document
+      .querySelector(`.onboarding-slide[data-slide="${this.current}"]`)
+      .classList.add("active");
+    document
+      .querySelectorAll("#onboardingDots span")
+      [this.current].classList.add("active");
+    document.getElementById("onboardingNextBtn").textContent =
+      this.current === this.total - 1 ? "Boshlash" : "Keyingisi";
+  },
+
+  finish() {
+    document.getElementById("onboarding").style.display = "none";
+    App.startApp();
+  },
+};
+
 const ContactUI = {
   init() {
     const user = UsersRepo.getCurrent();

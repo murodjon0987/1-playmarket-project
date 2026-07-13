@@ -6,6 +6,29 @@
  * boshqa modullar localStorage API'sini bevosita bilishi shart emas.
  * -----------------------------------------------------------------------
  */
+/**
+ * Store — markazlashgan hodisa (event) tizimi. Har qanday modul ma'lumotni
+ * o'zgartirganda Store.emit(eventName) chaqiradi; unga obuna bo'lgan barcha
+ * UI qismlari avtomatik yangilanadi. Bu modullarning bir-birini to'g'ridan-to'g'ri
+ * chaqirishi ("App.renderHome()" kabi) o'rniga markazlashgan oqim beradi.
+ */
+const Store = {
+  listeners: {},
+  on(event, callback) {
+    if (!this.listeners[event]) this.listeners[event] = [];
+    this.listeners[event].push(callback);
+  },
+  emit(event, payload) {
+    (this.listeners[event] || []).forEach((cb) => {
+      try {
+        cb(payload);
+      } catch (err) {
+        console.error(`Store obunachisida xato (${event}):`, err);
+      }
+    });
+  },
+};
+
 const STORAGE_KEYS = {
   USERS: "kiyimim_users",
   SESSION: "kiyimim_session",
@@ -58,12 +81,69 @@ const Storage = {
   },
 };
 
+/**
+ * Validate.js mantig'i shu yerda — Repo qatlamidan chiqadigan har bir
+ * ma'lumot to'g'ri "shakl"da bo'lishini kafolatlaydi. Agar localStorage
+ * qo'lda o'zgartirilgan yoki buzilgan bo'lsa, ilova qulab tushmasdan,
+ * shunchaki noto'g'ri yozuvni e'tiborsiz qoldiradi.
+ */
+const Validate = {
+  isNonEmptyString(v) {
+    return typeof v === "string" && v.trim().length > 0;
+  },
+  /** Kiyim (item) obyekti minimal talablarga javob beradimi */
+  item(it) {
+    if (!it || typeof it !== "object") return false;
+    if (!this.isNonEmptyString(it.id) || !this.isNonEmptyString(it.name))
+      return false;
+    if (!CATEGORIES.some((c) => c.id === it.category)) return false;
+    if (!COLORS.some((c) => c.id === it.color)) return false;
+    if (!SEASONS.some((s) => s.id === it.season)) return false;
+    return true;
+  },
+  /** Massivni filtrlab, faqat to'g'ri yozuvlarni qaytaradi (buzilganini log qiladi) */
+  itemList(list) {
+    if (!Array.isArray(list)) return [];
+    const valid = [];
+    list.forEach((it) => {
+      if (this.item(it)) valid.push(it);
+      else console.warn("Yaroqsiz kiyim yozuvi o'tkazib yuborildi:", it);
+    });
+    return valid;
+  },
+  outfit(o) {
+    return (
+      o &&
+      typeof o === "object" &&
+      this.isNonEmptyString(o.id) &&
+      o.itemIds &&
+      typeof o.itemIds === "object"
+    );
+  },
+  outfitList(list) {
+    if (!Array.isArray(list)) return [];
+    return list.filter((o) => this.outfit(o));
+  },
+  wearLog(l) {
+    return (
+      l &&
+      typeof l === "object" &&
+      this.isNonEmptyString(l.date) &&
+      Array.isArray(l.itemIds)
+    );
+  },
+  wearLogList(list) {
+    if (!Array.isArray(list)) return [];
+    return list.filter((l) => this.wearLog(l));
+  },
+};
+
 /* ==========================================================================
    Generic CRUD — kiyimlar (items) uchun
    ========================================================================== */
 const ItemsRepo = {
   all() {
-    return Storage.get(STORAGE_KEYS.ITEMS, []);
+    return Validate.itemList(Storage.get(STORAGE_KEYS.ITEMS, []));
   },
   save(list) {
     return Storage.set(STORAGE_KEYS.ITEMS, list);
@@ -82,6 +162,7 @@ const ItemsRepo = {
     };
     list.unshift(newItem);
     this.save(list);
+    Store.emit("items:changed");
     return newItem;
   },
   update(id, patch) {
@@ -90,11 +171,13 @@ const ItemsRepo = {
     if (idx === -1) return null;
     list[idx] = { ...list[idx], ...patch, updatedAt: Date.now() };
     this.save(list);
+    Store.emit("items:changed");
     return list[idx];
   },
   remove(id) {
     const list = this.all().filter((it) => it.id !== id);
     this.save(list);
+    Store.emit("items:changed");
   },
   toggleFavorite(id) {
     const item = this.findById(id);
@@ -165,7 +248,7 @@ const ActivityRepo = {
    ========================================================================== */
 const OutfitsRepo = {
   all() {
-    return Storage.get(STORAGE_KEYS.OUTFITS, []);
+    return Validate.outfitList(Storage.get(STORAGE_KEYS.OUTFITS, []));
   },
   save(list) {
     return Storage.set(STORAGE_KEYS.OUTFITS, list);
@@ -194,7 +277,7 @@ const OutfitsRepo = {
    ========================================================================== */
 const WearLogRepo = {
   all() {
-    return Storage.get(STORAGE_KEYS.WEAR_LOG, []);
+    return Validate.wearLogList(Storage.get(STORAGE_KEYS.WEAR_LOG, []));
   },
   save(list) {
     return Storage.set(STORAGE_KEYS.WEAR_LOG, list);

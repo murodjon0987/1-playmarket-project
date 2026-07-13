@@ -192,6 +192,7 @@ ul {
   text-align: center;
   color: #fff;
 }
+
 .splash-logo {
   position: relative;
   width: 96px;
@@ -437,6 +438,34 @@ html[data-theme="dark"] .auth-tabs {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
 }
+.password-field {
+  position: relative;
+  display: flex;
+}
+.password-field input {
+  width: 100%;
+  padding-right: 44px;
+}
+.pw-toggle-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  border-radius: 10px;
+}
+.pw-toggle-btn svg {
+  width: 18px;
+  height: 18px;
+}
+.pw-toggle-btn:active {
+  color: var(--primary);
+}
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -656,6 +685,9 @@ svg {
   box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.06);
   background: var(--surface);
 }
+.bottom-nav.hide-for-chat {
+  display: none;
+}
 .nav-btn {
   display: flex;
   flex-direction: column;
@@ -769,6 +801,7 @@ svg {
   display: flex;
   gap: 8px;
   margin-top: 16px;
+  flex-wrap: wrap;
 }
 .chip {
   display: inline-flex;
@@ -781,6 +814,8 @@ svg {
   font-size: 12.5px;
   font-weight: 600;
   color: var(--text-2);
+  white-space: nowrap;
+  flex: none;
 }
 .chip svg {
   width: 14px;
@@ -794,6 +829,19 @@ svg {
   );
   color: var(--primary);
   border-color: rgba(37, 99, 235, 0.2);
+}
+.weather-map-wrap {
+  margin-top: 10px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.weather-map-frame {
+  width: 100%;
+  height: 150px;
+  border: 0;
+  display: block;
 }
 
 .section-block {
@@ -968,6 +1016,85 @@ svg {
   padding-bottom: 4px;
   scroll-snap-type: x proximity;
 }
+
+/* ==========================================================================
+   FOYDALANUVCHI FIKRI (TESTIMONIAL)
+   ========================================================================== */
+.testimonial-card {
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.testimonial-quote-icon {
+  width: 26px;
+  height: 26px;
+  color: var(--primary);
+  opacity: 0.35;
+  margin-bottom: 6px;
+}
+.testimonial-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-1);
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.testimonial-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.testimonial-avatar {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    var(--primary-light),
+    var(--primary-dark)
+  );
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.testimonial-meta {
+  flex: 1;
+  min-width: 0;
+}
+.testimonial-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-1);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.testimonial-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.12);
+  padding: 2px 7px;
+  border-radius: 100px;
+}
+.testimonial-stars {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+}
+.testimonial-stars svg {
+  width: 11px;
+  height: 11px;
+  color: #f59e0b;
+  fill: #f59e0b;
+}
+
 .latest-card {
   flex: 0 0 128px;
   scroll-snap-align: start;
@@ -1333,6 +1460,115 @@ html[data-theme="dark"] .item-card-img {
   color: #fff;
 }
 
+/* Ko'p rasm yuklash (gallery) */
+.photo-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.photo-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+}
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-thumb-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 2px dashed var(--border);
+  color: var(--text-3);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.photo-thumb-add svg {
+  width: 22px;
+  height: 22px;
+}
+.photo-thumb-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.photo-thumb-remove svg {
+  width: 12px;
+  height: 12px;
+  stroke: #fff;
+}
+.photo-thumb-cover {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(37, 99, 235, 0.9);
+  padding: 2px 7px;
+  border-radius: 100px;
+}
+
+/* Detail modal galereyasi */
+.detail-photo-gallery {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: linear-gradient(160deg, #eef2f8, #e2e8f4);
+}
+html[data-theme="dark"] .detail-photo-gallery {
+  background: linear-gradient(160deg, #1a2540, #131b2c);
+}
+.detail-photo-gallery .detail-photo-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.detail-photo-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.detail-photo-gallery svg {
+  width: 44px;
+  height: 44px;
+  color: var(--text-3);
+}
+.detail-photo-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 0 0;
+}
+.detail-photo-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.detail-photo-dots span.active {
+  background: var(--primary);
+}
+
 /* ==========================================================================
    AI RECOMMENDATION
    ========================================================================== */
@@ -1553,6 +1789,65 @@ html[data-theme="dark"] .item-card-img {
   border: 1px solid var(--border);
 }
 
+/* Capsule Wardrobe Analyzer */
+.capsule-hero {
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.capsule-hero-num {
+  font-size: 34px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  color: var(--primary);
+  display: block;
+}
+.capsule-hero-label {
+  font-size: 12.5px;
+  color: var(--text-2);
+  font-weight: 600;
+  margin-top: 4px;
+}
+.capsule-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.capsule-insight-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 13px 15px;
+}
+.capsule-insight-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(37, 99, 235, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.capsule-insight-icon svg {
+  width: 17px;
+  height: 17px;
+  color: var(--primary);
+}
+.capsule-insight-text {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.capsule-insight-text b {
+  color: var(--primary);
+}
+
 /* ==========================================================================
    PROFILE / SETTINGS
    ========================================================================== */
@@ -1578,6 +1873,14 @@ html[data-theme="dark"] .item-card-img {
   margin: 0 auto 14px;
   box-shadow: var(--shadow-md);
   font-family: var(--font-display);
+  overflow: hidden;
+  flex: none;
+}
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .profile-hero h2 {
   font-size: 19px;
@@ -1634,6 +1937,62 @@ html[data-theme="dark"] .item-card-img {
 }
 .profile-item-danger .profile-item-icon svg {
   color: var(--danger);
+}
+
+.profile-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--primary);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.profile-edit-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.edit-avatar-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.edit-avatar-row .profile-avatar {
+  width: 76px;
+  height: 76px;
+  font-size: 22px;
+  margin: 0;
+}
+.edit-avatar-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-1);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.edit-avatar-upload-btn svg {
+  width: 14px;
+  height: 14px;
+  color: var(--primary);
+}
+.edit-profile-error {
+  color: var(--danger);
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 10px;
 }
 
 .settings-group {
@@ -2569,6 +2928,7 @@ html[data-theme="dark"] .detail-photo {
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
   background: var(--surface);
   border-top: 1px solid var(--border);
+  z-index: 60;
 }
 .chat-input-bar input {
   flex: 1;
@@ -2591,6 +2951,103 @@ html[data-theme="dark"] .detail-photo {
   );
   color: var(--accent-amber);
   border-color: rgba(245, 158, 11, 0.25);
+}
+
+/* ==========================================================================
+   ONBOARDING
+   ========================================================================== */
+.onboarding {
+  background: var(--bg);
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px 28px 40px;
+}
+.onboarding-slides {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.onboarding-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateX(24px);
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
+  pointer-events: none;
+}
+.onboarding-slide.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.onboarding-illustration {
+  width: 120px;
+  height: 120px;
+  border-radius: 32px;
+  background: linear-gradient(
+    135deg,
+    rgba(37, 99, 235, 0.14),
+    rgba(79, 130, 245, 0.05)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+.onboarding-illustration svg {
+  width: 52px;
+  height: 52px;
+  stroke: var(--primary);
+  stroke-width: 1.4;
+}
+.onboarding-slide h2 {
+  font-size: 21px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: var(--text-1);
+}
+.onboarding-slide p {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.6;
+  max-width: 320px;
+}
+.onboarding-dots {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0;
+}
+.onboarding-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 100px;
+  background: var(--border);
+  transition: all 0.3s;
+}
+.onboarding-dots span.active {
+  width: 24px;
+  background: var(--primary);
+}
+.onboarding-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 400px;
+}
+.onboarding-actions .btn {
+  padding: 12px 28px;
 }
 
 /* Sort menu */
@@ -2741,6 +3198,17 @@ html[data-theme="dark"] .detail-photo {
   padding: 4px 8px;
   border-radius: 100px;
   background: rgba(239, 68, 68, 0.9);
+  color: #fff;
+}
+.photo-count-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: rgba(0, 0, 0, 0.55);
   color: #fff;
 }
 

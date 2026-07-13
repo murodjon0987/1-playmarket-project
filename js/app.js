@@ -16,6 +16,7 @@ const App = {
     this.bindSettings();
     UI.initBackToTop();
     this.syncNavHeight();
+    this.subscribeToStore();
 
     // Splash screen — 2 soniyadan so'ng tegishli ekranga o'tish
     setTimeout(() => {
@@ -65,11 +66,7 @@ const App = {
     if (user) {
       document.getElementById("userNameDisplay").textContent =
         user.name.split(" ")[0];
-      document.getElementById("profileName").textContent = user.name;
-      document.getElementById("profileEmail").textContent = user.email;
-      document.getElementById("profileAvatar").textContent = user.name
-        .slice(0, 2)
-        .toUpperCase();
+      this.renderProfileHero(user);
     }
     UI.navigateTo("home");
     this.mockWeather();
@@ -79,7 +76,29 @@ const App = {
     ShareUI.init();
     WishlistUI.init();
     ChatUI.init();
+    OnboardingUI.init();
+    ProfileEditUI.init();
     ProgressRepo.recordLoginAndGetStreak();
+  },
+
+  /** Profil sahifasidagi ism/email/avatarni joriy foydalanuvchi
+   *  ma'lumotlariga qarab yangilaydi (rasm bo'lsa — rasm, bo'lmasa — bosh harflar) */
+  renderProfileHero(user) {
+    document.getElementById("profileName").textContent = user.name;
+    document.getElementById("profileEmail").textContent = user.email;
+    const initials = user.name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase();
+    const avatarEl = document.getElementById("profileAvatar");
+    if (user.avatar) {
+      avatarEl.innerHTML = `<img src="${user.avatar}" alt="${user.name}">`;
+    } else {
+      avatarEl.textContent = initials;
+    }
   },
 
   /** Pastki navigatsiya balandligini o'lchab, CSS o'zgaruvchisiga yozadi
@@ -100,6 +119,19 @@ const App = {
     if ("ResizeObserver" in window) new ResizeObserver(apply).observe(nav);
   },
 
+  /** Markaziy hodisa oqimi — kiyimlar o'zgarganda faqat joriy ekranga
+   *  tegishli qismlarni yangilaydi, har bir modulda alohida chaqirish shart emas */
+  subscribeToStore() {
+    Store.on("items:changed", () => {
+      if (UI.currentView === "home") this.renderHome();
+      if (UI.currentView === "wardrobe") Wardrobe.render();
+      if (UI.currentView === "favorites") Wardrobe.renderFavorites();
+      if (UI.currentView === "stats") this.renderStats();
+      // Bosh sahifadagi kartochkalar boshqa ekranda ham eskirmasin
+      this.renderHomeStats();
+    });
+  },
+
   bindGlobalNav() {
     document.querySelectorAll("[data-nav]").forEach((el) => {
       el.addEventListener("click", () => {
@@ -114,6 +146,11 @@ const App = {
     document.getElementById("notifBtn").addEventListener("click", () => {
       UI.toast("Hozircha yangi bildirishnoma yo'q", "default");
     });
+    document.getElementById("weatherChip").addEventListener("click", () => {
+      const mapWrap = document.getElementById("weatherMapWrap");
+      if (mapWrap.querySelector("iframe").src) mapWrap.hidden = !mapWrap.hidden;
+      else UI.toast("Joylashuv aniqlanmoqda, biroz kuting...", "default");
+    });
   },
 
   /* ---------------------------------------------------------------------
@@ -124,6 +161,7 @@ const App = {
     this.renderTodayLook();
     this.renderHomeStats();
     this.renderLatestItems();
+    TestimonialUI.render();
     this.renderActivity();
   },
 
@@ -165,6 +203,15 @@ const App = {
     const now = new Date();
     document.getElementById("todayDate").textContent =
       `${days[now.getDay()]}, ${now.getDate()}-${months[now.getMonth()]}`;
+
+    const streakChip = document.getElementById("streakChip");
+    const streak = ProgressRepo.getStreak();
+    if (streak >= 2) {
+      streakChip.hidden = false;
+      streakChip.textContent = `🔥 ${streak} kun ketma-ket`;
+    } else {
+      streakChip.hidden = true;
+    }
   },
 
   /** Haqiqiy ob-havo — Open-Meteo (kalitsiz, bepul API) + brauzer geolokatsiyasi.
@@ -193,6 +240,10 @@ const App = {
           const desc = this.weatherCodeToText(data.current.weather_code);
           document.getElementById("weatherText").textContent =
             `${temp}° · ${desc}`;
+          const mapWrap = document.getElementById("weatherMapWrap");
+          const mapFrame = document.getElementById("weatherMapFrame");
+          mapFrame.src = `https://maps.google.com/maps?q=${latitude},${longitude}&z=13&output=embed`;
+          mapWrap.hidden = false;
         } catch (err) {
           console.error("Ob-havo xatosi:", err);
           fallback();
@@ -372,6 +423,8 @@ const App = {
       <div class="stat-card"><span class="stat-num" style="font-size:15px">${leastWorn ? leastWorn.name : "—"}</span><span class="stat-label">Eng kam kiyilgan</span></div>
     `;
 
+    this.renderCapsuleAnalyzer(items);
+
     const catChart = document.getElementById("categoryChart");
     const maxCat = Math.max(1, ...Object.values(catCounts));
     const catEntries = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
@@ -408,6 +461,91 @@ const App = {
           )
           .join("")
       : `<p style="font-size:13px;color:var(--text-3)">Ma'lumot yo'q.</p>`;
+  },
+
+  /** Capsule Wardrobe Analyzer — garderobdagi kiyimlar bilan yasash mumkin
+   *  bo'lgan barcha "yuqori + pastki + oyoq kiyim" kombinatsiyalarini hisoblaydi */
+  renderCapsuleAnalyzer(items) {
+    const tops = items.filter((it) =>
+      AIEngine.SLOTS.top.categories.includes(it.category),
+    );
+    const bottoms = items.filter((it) =>
+      AIEngine.SLOTS.bottom.categories.includes(it.category),
+    );
+    const shoes = items.filter((it) =>
+      AIEngine.SLOTS.shoes.categories.includes(it.category),
+    );
+
+    const totalCombos = tops.length * bottoms.length * shoes.length;
+    document.getElementById("capsuleHero").innerHTML = `
+      <span class="capsule-hero-num">${totalCombos}</span>
+      <p class="capsule-hero-label">xil kombinatsiya yasash mumkin (${items.length} ta kiyim bilan)</p>
+    `;
+
+    const insights = [];
+
+    const combosPerItem = (group1, group2) => group1.length * group2.length;
+    let bestItem = null,
+      bestCount = 0;
+    tops.forEach((it) => {
+      const c = combosPerItem(bottoms, shoes);
+      if (c > bestCount) {
+        bestCount = c;
+        bestItem = it;
+      }
+    });
+    bottoms.forEach((it) => {
+      const c = combosPerItem(tops, shoes);
+      if (c > bestCount) {
+        bestCount = c;
+        bestItem = it;
+      }
+    });
+    if (bestItem && bestCount > 0) {
+      insights.push({
+        icon: "ic-star",
+        text: `<b>${bestItem.name}</b> eng ko'p qatnashadi — u bilan <b>${bestCount}</b> xil kombinatsiya yasash mumkin.`,
+      });
+    }
+
+    const gaps = [];
+    if (!tops.length) gaps.push("yuqori kiyim (futbolka/ko'ylak)");
+    if (!bottoms.length) gaps.push("pastki kiyim (shim/jinsi)");
+    if (!shoes.length) gaps.push("oyoq kiyim");
+    if (gaps.length) {
+      insights.push({
+        icon: "ic-gift",
+        text: `Garderobingizda <b>${gaps.join(", ")}</b> yetishmayapti — shu turkumdan qo'shsangiz, kombinatsiyalar soni oshadi.`,
+      });
+    } else if (totalCombos > 0) {
+      const weakest = [
+        { name: "yuqori kiyim", count: tops.length },
+        { name: "pastki kiyim", count: bottoms.length },
+        { name: "oyoq kiyim", count: shoes.length },
+      ].sort((a, b) => a.count - b.count)[0];
+      insights.push({
+        icon: "ic-chart",
+        text: `Eng kam soni — <b>${weakest.name}</b> (${weakest.count} dona). Shu turkumga 1 ta qo'shsangiz, kombinatsiyalar soni sezilarli ko'payadi.`,
+      });
+    }
+
+    if (!items.length) {
+      insights.push({
+        icon: "ic-shirt",
+        text: "Tahlil uchun avval garderobingizga kiyim qo'shing.",
+      });
+    }
+
+    document.getElementById("capsuleInsights").innerHTML = insights
+      .map(
+        (i) => `
+      <div class="capsule-insight-row">
+        <span class="capsule-insight-icon"><svg viewBox="0 0 24 24"><use href="#${i.icon}"/></svg></span>
+        <p class="capsule-insight-text">${i.text}</p>
+      </div>
+    `,
+      )
+      .join("");
   },
 
   /* ---------------------------------------------------------------------

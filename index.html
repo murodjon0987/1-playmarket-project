@@ -128,6 +128,14 @@
       <rect x="3" y="5" width="18" height="14" rx="2" />
       <path d="m4 6.5 8 6 8-6" />
     </symbol>
+    <symbol id="ic-eye" viewBox="0 0 24 24">
+      <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </symbol>
+    <symbol id="ic-eye-off" viewBox="0 0 24 24">
+      <path
+        d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M6.5 6.7C4 8.3 2 12 2 12s4 7 10 7c1.8 0 3.4-.5 4.8-1.3M9.9 5.2A10 10 0 0 1 12 5c6 0 10 7 10 7a15 15 0 0 1-2.2 3" />
+    </symbol>
   </svg>
 
   <!-- ============ SPLASH SCREEN ============ -->
@@ -145,6 +153,7 @@
       <div class="splash-loader"><span></span><span></span><span></span></div>
     </div>
   </section>
+
 
   <!-- ============ AUTH SCREEN ============ -->
   <section id="auth" class="screen auth">
@@ -172,7 +181,14 @@
           </div>
           <div class="field">
             <label>Parol</label>
-            <input type="password" id="loginPassword" placeholder="••••••••" required>
+            <div class="password-field">
+              <input type="password" id="loginPassword" placeholder="••••••••" required>
+              <button type="button" class="pw-toggle-btn" data-target="loginPassword">
+                <svg viewBox="0 0 24 24">
+                  <use href="#ic-eye" />
+                </svg>
+              </button>
+            </div>
           </div>
           <label class="remember">
             <input type="checkbox" id="rememberMe">
@@ -193,11 +209,53 @@
           </div>
           <div class="field">
             <label>Parol</label>
-            <input type="password" id="regPassword" placeholder="Kamida 6 ta belgi" required>
+            <div class="password-field">
+              <input type="password" id="regPassword" placeholder="Kamida 6 ta belgi" required>
+              <button type="button" class="pw-toggle-btn" data-target="regPassword">
+                <svg viewBox="0 0 24 24">
+                  <use href="#ic-eye" />
+                </svg>
+              </button>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary btn-block">Ro'yxatdan o'tish</button>
         </form>
       </div>
+    </div>
+  </section>
+
+  <!-- ============ ONBOARDING ============ -->
+  <section id="onboarding" class="screen onboarding">
+    <div class="onboarding-slides" id="onboardingSlides">
+      <div class="onboarding-slide active" data-slide="0">
+        <div class="onboarding-illustration"><svg viewBox="0 0 24 24">
+            <use href="#ic-plus" />
+          </svg></div>
+        <h2>Garderobingizni yarating</h2>
+        <p>Kiyimlaringizni rasm bilan qo'shing — kategoriya, rang va faslini belgilang. Bir necha daqiqada to'liq
+          raqamli garderob tayyor bo'ladi.</p>
+      </div>
+      <div class="onboarding-slide" data-slide="1">
+        <div class="onboarding-illustration"><svg viewBox="0 0 24 24">
+            <use href="#ic-ai" />
+          </svg></div>
+        <h2>AI tavsiyasini oling</h2>
+        <p>Vaziyatni tanlang — ish, sayr, sport yoki to'y — AI garderobingizdan eng mos kombinatsiyani tayyorlab beradi.
+        </p>
+      </div>
+      <div class="onboarding-slide" data-slide="2">
+        <div class="onboarding-illustration"><svg viewBox="0 0 24 24">
+            <use href="#ic-star" />
+          </svg></div>
+        <h2>Saqlang va kuzating</h2>
+        <p>Yoqqan kombinatsiyalarni saqlang, kalendarga kiygan kiyimlaringizni belgilang va statistikada garderobingiz
+          tahlilini ko'ring.</p>
+      </div>
+    </div>
+    <div class="onboarding-dots" id="onboardingDots"></div>
+    <div class="onboarding-actions">
+      <button class="link-btn" id="onboardingSkipBtn">O'tkazib yuborish</button>
+      <button class="btn btn-primary" id="onboardingNextBtn">Keyingisi</button>
     </div>
   </section>
 
@@ -228,6 +286,10 @@
             <span id="weatherText">Ob-havo...</span>
           </button>
           <span class="chip chip-streak" id="streakChip" hidden></span>
+        </div>
+        <div class="weather-map-wrap" id="weatherMapWrap" hidden>
+          <iframe id="weatherMapFrame" class="weather-map-frame" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
         </div>
       </header>
 
@@ -289,6 +351,15 @@
           <button class="quick-btn" data-nav="stats"><svg viewBox="0 0 24 24">
               <use href="#ic-chart" />
             </svg><span>Statistika</span></button>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <div class="section-head">
+          <h2>Foydalanuvchi fikri</h2>
+        </div>
+        <div class="testimonial-card glass" id="testimonialCard">
+          <!-- filled by JS -->
         </div>
       </section>
 
@@ -366,15 +437,14 @@
 
       <form id="itemForm" class="item-form">
         <input type="hidden" id="itemId">
-        <div class="photo-upload" id="photoUpload">
-          <img id="photoPreview" alt="" hidden>
-          <div class="photo-upload-placeholder" id="photoPlaceholder">
+        <div class="photo-gallery" id="photoGallery">
+          <div class="photo-thumb photo-thumb-add" id="photoAddBtn">
             <svg viewBox="0 0 24 24">
               <use href="#ic-camera" />
             </svg>
             <span>Rasm qo'shish</span>
           </div>
-          <input type="file" id="photoInput" accept="image/*" hidden>
+          <input type="file" id="photoInput" accept="image/*" multiple hidden>
         </div>
 
         <div class="field">
@@ -535,6 +605,14 @@
 
       <section class="section-block">
         <div class="section-head">
+          <h2>Kombinatsiyalar tahlili</h2>
+        </div>
+        <div class="capsule-hero glass" id="capsuleHero"></div>
+        <div class="capsule-insights" id="capsuleInsights"></div>
+      </section>
+
+      <section class="section-block">
+        <div class="section-head">
           <h2>Kategoriyalar bo'yicha</h2>
         </div>
         <div class="bar-chart" id="categoryChart"></div>
@@ -559,6 +637,12 @@
         <div class="profile-avatar" id="profileAvatar">FI</div>
         <h2 id="profileName">Foydalanuvchi</h2>
         <p id="profileEmail">email@misol.uz</p>
+        <button class="profile-edit-btn" id="editProfileBtn">
+          <svg viewBox="0 0 24 24">
+            <use href="#ic-edit" />
+          </svg>
+          Profilni tahrirlash
+        </button>
       </div>
 
       <div class="profile-menu">
@@ -1062,7 +1146,8 @@
       <button class="modal-close" id="detailClose"><svg viewBox="0 0 24 24">
           <use href="#ic-close" />
         </svg></button>
-      <div class="detail-photo" id="detailPhoto"></div>
+      <div class="detail-photo-gallery" id="detailPhoto"></div>
+      <div class="detail-photo-dots" id="detailPhotoDots"></div>
       <div class="detail-body">
         <div class="detail-head">
           <h2 id="detailName">—</h2>
@@ -1086,7 +1171,77 @@
     </div>
   </div>
 
+  <!-- ============ PROFILNI TAHRIRLASH MODAL ============ -->
+  <div class="modal-overlay" id="editProfileModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-head">
+        <h3>Profilni tahrirlash</h3>
+        <button class="modal-close" id="editProfileClose"><svg viewBox="0 0 24 24">
+            <use href="#ic-close" />
+          </svg></button>
+      </div>
+
+      <form id="editProfileForm" class="item-form">
+        <div class="edit-avatar-row">
+          <div class="profile-avatar" id="editProfileAvatarPreview">FI</div>
+          <label class="edit-avatar-upload-btn" for="editProfilePhotoInput">
+            <svg viewBox="0 0 24 24">
+              <use href="#ic-camera" />
+            </svg>
+            Rasm tanlash
+          </label>
+          <input type="file" id="editProfilePhotoInput" accept="image/*" hidden>
+          <button type="button" class="link-btn" id="editProfilePhotoRemove" hidden>Rasmni olib tashlash</button>
+        </div>
+
+        <div class="field">
+          <label>Ism</label>
+          <input type="text" id="editProfileName" placeholder="Ismingiz" required>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="editProfileEmail" placeholder="email@misol.uz" required>
+        </div>
+
+        <p class="filter-label" style="margin-top:18px">Parolni o'zgartirish (ixtiyoriy)</p>
+        <div class="field">
+          <label>Joriy parol</label>
+          <div class="password-field">
+            <input type="password" id="editProfileCurrentPassword" placeholder="Joriy parolingiz" autocomplete="off">
+            <button type="button" class="pw-toggle-btn" data-target="editProfileCurrentPassword">
+              <svg viewBox="0 0 24 24">
+                <use href="#ic-eye" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Yangi parol</label>
+          <div class="password-field">
+            <input type="password" id="editProfileNewPassword" placeholder="Kamida 6 ta belgi" autocomplete="off">
+            <button type="button" class="pw-toggle-btn" data-target="editProfileNewPassword">
+              <svg viewBox="0 0 24 24">
+                <use href="#ic-eye" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <p id="editProfileError" class="edit-profile-error" hidden></p>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:8px">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px">
+            <use href="#ic-check" />
+          </svg>
+          Saqlash
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- ============ CONFIRM MODAL ============ -->
+
   <div class="modal-overlay" id="confirmModal">
     <div class="confirm-box">
       <h3 id="confirmTitle">Ishonchingiz komilmi?</h3>
@@ -1119,6 +1274,11 @@
   <script src="js/ai.js"></script>
   <script src="js/features.js"></script>
   <script src="js/app.js"></script>
+  <script src="/js/sw.js"></script>
+  <script src="/js/repro.js"></script>
+  <script src="/js/run.js"></script>
+  <script src="/js/profil-edit.js"></script>
+  <script src="/js/testi.js"></script>
   <script>
     // PWA: offline arxitektura uchun service worker ro'yxatdan o'tkazish
     if ('serviceWorker' in navigator) {
