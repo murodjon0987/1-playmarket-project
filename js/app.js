@@ -17,6 +17,7 @@ const App = {
     UI.initBackToTop();
     this.syncNavHeight();
     this.subscribeToStore();
+    OnboardingUI.init();
 
     // Splash screen — 2 soniyadan so'ng tegishli ekranga o'tish
     setTimeout(() => {
@@ -76,7 +77,6 @@ const App = {
     ShareUI.init();
     WishlistUI.init();
     ChatUI.init();
-    OnboardingUI.init();
     ProfileEditUI.init();
     ProgressRepo.recordLoginAndGetStreak();
   },
@@ -161,7 +161,6 @@ const App = {
     this.renderTodayLook();
     this.renderHomeStats();
     this.renderLatestItems();
-    TestimonialUI.render();
     this.renderActivity();
   },
 
@@ -214,42 +213,71 @@ const App = {
     }
   },
 
-  /** Haqiqiy ob-havo — Open-Meteo (kalitsiz, bepul API) + brauzer geolokatsiyasi.
-   *  Ruxsat berilmasa yoki xato bo'lsa, mock qiymatga qaytadi. */
+  /** Haqiqiy ob-havo — Open-Meteo (kalitsiz, bepul API). Avval brauzer
+   *  geolokatsiyasi so'raladi; ruxsat berilmasa yoki xato bo'lsa, IP orqali
+   *  taxminiy joylashuv olinadi. Ikkalasi ham ishlamasa — mock qiymat. */
   async mockWeather() {
     const fallback = () => {
       const samples = [
         "24° · Quyoshli",
         "18° · Bulutli",
-        "2° · Qorli",
+        "20° · Yomg'irli",
         "30° · Issiq",
       ];
       document.getElementById("weatherText").textContent =
         samples[new Date().getDate() % samples.length];
     };
-    if (!navigator.geolocation) return fallback();
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const { latitude, longitude } = pos.coords;
-          const res = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code`,
-          );
-          const data = await res.json();
-          const temp = Math.round(data.current.temperature_2m);
-          const desc = this.weatherCodeToText(data.current.weather_code);
-          document.getElementById("weatherText").textContent =
-            `${temp}° · ${desc}`;
+
+    const applyWeather = async (latitude, longitude, showMap) => {
+      try {
+        const res = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code`,
+        );
+        const data = await res.json();
+        const temp = Math.round(data.current.temperature_2m);
+        const desc = this.weatherCodeToText(data.current.weather_code);
+        document.getElementById("weatherText").textContent =
+          `${temp}° · ${desc}`;
+        if (showMap) {
           const mapWrap = document.getElementById("weatherMapWrap");
           const mapFrame = document.getElementById("weatherMapFrame");
           mapFrame.src = `https://maps.google.com/maps?q=${latitude},${longitude}&z=13&output=embed`;
           mapWrap.hidden = false;
-        } catch (err) {
-          console.error("Ob-havo xatosi:", err);
+        }
+        return true;
+      } catch (err) {
+        console.error("Ob-havo xatosi:", err);
+        return false;
+      }
+    };
+
+    // IP orqali taxminiy joylashuv (ruxsat so'ramasdan ishlaydi)
+    const ipFallback = async () => {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const geo = await res.json();
+        if (geo.latitude && geo.longitude) {
+          const ok = await applyWeather(geo.latitude, geo.longitude, false);
+          if (!ok) fallback();
+        } else {
           fallback();
         }
+      } catch (err) {
+        fallback();
+      }
+    };
+
+    if (!navigator.geolocation) return ipFallback();
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const ok = await applyWeather(
+          pos.coords.latitude,
+          pos.coords.longitude,
+          true,
+        );
+        if (!ok) ipFallback();
       },
-      () => fallback(),
+      () => ipFallback(),
       { timeout: 5000 },
     );
   },

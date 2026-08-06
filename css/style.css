@@ -418,6 +418,10 @@ html[data-theme="dark"] .auth-tabs {
   font-weight: 600;
   color: var(--text-2);
 }
+.field-optional {
+  font-weight: 400;
+  color: var(--text-3);
+}
 .field input,
 .field select,
 .field textarea {

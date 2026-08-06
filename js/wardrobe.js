@@ -572,22 +572,54 @@ const Wardrobe = {
     });
   },
 
+  /** Rasmni canvas orqali kichraytirib, localStorage joyini tejaydi
+   *  (katta rasmlar saqlash chegarasini tez to'ldirib, xatosiz saqlanmay qolishiga sabab bo'ladi) */
+  compressImage(file, maxSize = 900, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > maxSize) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          } else if (height > maxSize) {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  },
+
   bindForm() {
     // Rasm yuklash — bir nechta fayl birdan tanlash mumkin
     const photoInput = document.getElementById("photoInput");
-    photoInput.addEventListener("change", () => {
+    photoInput.addEventListener("change", async () => {
       const files = Array.from(photoInput.files).slice(
         0,
         6 - this.state.photos.length,
       );
-      files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          this.state.photos.push(reader.result);
+      for (const file of files) {
+        try {
+          const compressed = await this.compressImage(file);
+          this.state.photos.push(compressed);
           this.renderPhotoGallery();
-        };
-        reader.readAsDataURL(file);
-      });
+        } catch (err) {
+          console.error("Rasmni yuklashda xato:", err);
+          UI.toast("Rasmni yuklab bo'lmadi, boshqasini sinab ko'ring", "error");
+        }
+      }
       photoInput.value = "";
     });
 
