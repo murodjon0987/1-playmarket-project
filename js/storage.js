@@ -238,8 +238,23 @@ const ActivityRepo = {
   },
   add(text, icon = "ic-shirt") {
     const list = this.all();
-    list.unshift({ id: Storage.uid("act"), text, icon, time: Date.now() });
+    list.unshift({
+      id: Storage.uid("act"),
+      text,
+      icon,
+      time: Date.now(),
+      read: false,
+    });
     Storage.set(STORAGE_KEYS.ACTIVITY, list.slice(0, 15));
+    Store.emit("activity:changed");
+  },
+  unreadCount() {
+    return this.all().filter((a) => !a.read).length;
+  },
+  markAllRead() {
+    const list = this.all().map((a) => ({ ...a, read: true }));
+    Storage.set(STORAGE_KEYS.ACTIVITY, list);
+    Store.emit("activity:changed");
   },
 };
 
@@ -374,6 +389,8 @@ const SettingsRepo = {
   },
   set(patch) {
     const current = this.get();
-    Storage.set(STORAGE_KEYS.SETTINGS, { ...current, ...patch });
+    const next = { ...current, ...patch };
+    Storage.set(STORAGE_KEYS.SETTINGS, next);
+    Store.emit("settings:changed", next);
   },
 };

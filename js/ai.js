@@ -23,11 +23,9 @@ const AIEngine = {
 
   renderOccasions() {
     const grid = document.getElementById("occasionGrid");
-    if (grid.dataset.rendered) return; // faqat bir marta chizamiz
-    grid.dataset.rendered = "1";
     grid.innerHTML = OCCASIONS.map(
       (o) =>
-        `<button class="occasion-btn" data-occasion="${o.id}"><span class="oe">${o.emoji}</span>${o.name}</button>`,
+        `<button class="occasion-btn ${o.id === this.selectedOccasion ? "active" : ""}" data-occasion="${o.id}"><span class="oe">${o.emoji}</span>${occasionName(o.id)}</button>`,
     ).join("");
     grid.querySelectorAll(".occasion-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -39,6 +37,8 @@ const AIEngine = {
         this.generateRecommendation();
       });
     });
+    if (grid.dataset.bound) return;
+    grid.dataset.bound = "1";
     document
       .getElementById("refreshAiBtn")
       .addEventListener("click", () => this.generateRecommendation(true));
@@ -135,6 +135,8 @@ const AIEngine = {
     const occasion = OCCASIONS.find((o) => o.id === this.selectedOccasion);
     if (!occasion) return;
 
+    if (typeof PremiumUI !== "undefined" && !PremiumUI.canUseAiToday()) return;
+
     const items = ItemsRepo.all();
     document.getElementById("aiEmpty").hidden = true;
     document.getElementById("aiResultWrap").hidden = false;
@@ -176,6 +178,7 @@ const AIEngine = {
     this.lastResult = result;
     this.lastScore = matchScore;
     ProgressRepo.incrementAiUsage();
+    if (typeof PremiumUI !== "undefined") PremiumUI.logAiUse();
 
     if (filledSlots === 0) {
       UI.toast(

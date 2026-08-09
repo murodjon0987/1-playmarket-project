@@ -225,7 +225,7 @@
   </section>
 
   <!-- ============ ONBOARDING ============ -->
-  <section id="onboarding" class="screen onboarding">
+  <section id="onboarding" class="screen onboarding" style="display:none">
     <div class="onboarding-slides" id="onboardingSlides">
       <div class="onboarding-slide active" data-slide="0">
         <div class="onboarding-illustration"><svg viewBox="0 0 24 24">
@@ -295,8 +295,8 @@
 
       <section class="section-block">
         <div class="section-head">
-          <h2>Bugungi AI tavsiya</h2>
-          <button class="link-btn" data-nav="ai">Barchasi <svg viewBox="0 0 24 24">
+          <h2 data-i18n="home.todayAi">Bugungi AI tavsiya</h2>
+          <button class="link-btn" data-nav="ai" data-i18n="home.all">Barchasi <svg viewBox="0 0 24 24">
               <use href="#ic-chevron" />
             </svg></button>
         </div>
@@ -309,19 +309,19 @@
         <div class="stat-grid">
           <div class="stat-card">
             <span class="stat-num" id="statTotal">0</span>
-            <span class="stat-label">Jami kiyim</span>
+            <span class="stat-label" data-i18n="home.totalItems">Jami kiyim</span>
           </div>
           <div class="stat-card stat-card-accent">
             <span class="stat-num" id="statFav">0</span>
-            <span class="stat-label">Sevimlilar</span>
+            <span class="stat-label" data-i18n="home.favorites">Sevimlilar</span>
           </div>
         </div>
       </section>
 
       <section class="section-block">
         <div class="section-head">
-          <h2>Oxirgi qo'shilgan</h2>
-          <button class="link-btn" data-nav="wardrobe">Hammasi <svg viewBox="0 0 24 24">
+          <h2 data-i18n="home.latestAdded">Oxirgi qo'shilgan</h2>
+          <button class="link-btn" data-nav="wardrobe" data-i18n="home.allItems">Hammasi <svg viewBox="0 0 24 24">
               <use href="#ic-chevron" />
             </svg></button>
         </div>
@@ -330,33 +330,33 @@
 
       <section class="section-block">
         <div class="section-head">
-          <h2>Tezkor tugmalar</h2>
+          <h2 data-i18n="home.quickActions">Tezkor tugmalar</h2>
         </div>
         <div class="quick-grid">
           <button class="quick-btn" data-nav="add"><svg viewBox="0 0 24 24">
               <use href="#ic-plus" />
-            </svg><span>Qo'shish</span></button>
+            </svg><span data-i18n="quick.add">Qo'shish</span></button>
           <button class="quick-btn" data-nav="ai"><svg viewBox="0 0 24 24">
               <use href="#ic-ai" />
-            </svg><span>AI tavsiya</span></button>
+            </svg><span data-i18n="quick.aiPick">AI tavsiya</span></button>
           <button class="quick-btn" id="surpriseMeBtn"><svg viewBox="0 0 24 24">
               <use href="#ic-star" />
-            </svg><span>Hayratda qoldir</span></button>
+            </svg><span data-i18n="quick.surprise">Hayratda qoldir</span></button>
           <button class="quick-btn" data-nav="travel"><svg viewBox="0 0 24 24">
               <use href="#ic-gift" />
-            </svg><span>Sayohat ro'yxati</span></button>
+            </svg><span data-i18n="quick.travel">Sayohat ro'yxati</span></button>
           <button class="quick-btn" data-nav="favorites"><svg viewBox="0 0 24 24">
               <use href="#ic-heart" />
-            </svg><span>Sevimlilar</span></button>
+            </svg><span data-i18n="quick.favorites">Sevimlilar</span></button>
           <button class="quick-btn" data-nav="stats"><svg viewBox="0 0 24 24">
               <use href="#ic-chart" />
-            </svg><span>Statistika</span></button>
+            </svg><span data-i18n="quick.stats">Statistika</span></button>
         </div>
       </section>
 
       <section class="section-block section-block-last">
         <div class="section-head">
-          <h2>So'nggi faoliyat</h2>
+          <h2 data-i18n="home.recentActivity">So'nggi faoliyat</h2>
         </div>
         <ul class="activity-list" id="activityList"></ul>
       </section>
@@ -365,7 +365,7 @@
     <!-- ---- WARDROBE (Kiyimlarim) ---- -->
     <main id="view-wardrobe" class="view">
       <header class="page-header">
-        <h1>Kiyimlarim</h1>
+        <h1 data-i18n="wardrobe.title">Kiyimlarim</h1>
         <div class="page-header-actions">
           <button class="icon-btn" id="sortToggleBtn"><svg viewBox="0 0 24 24">
               <use href="#ic-chart" />
@@ -383,21 +383,22 @@
       </header>
 
       <div class="sort-menu" id="sortMenu">
-        <button class="chip-opt active" data-sort="new">Eng yangi</button>
-        <button class="chip-opt" data-sort="name">Nomi bo'yicha</button>
-        <button class="chip-opt" data-sort="worn">Eng ko'p kiyilgan</button>
+        <button class="chip-opt active" data-sort="new" data-i18n="wardrobe.sortNew">Eng yangi</button>
+        <button class="chip-opt" data-sort="name" data-i18n="wardrobe.sortName">Nomi bo'yicha</button>
+        <button class="chip-opt" data-sort="worn" data-i18n="wardrobe.sortWorn">Eng ko'p kiyilgan</button>
       </div>
 
       <div class="bulk-bar" id="bulkBar" hidden>
         <span id="bulkCount">0 ta tanlandi</span>
-        <button class="btn btn-danger-outline" id="bulkDeleteBtn">O'chirish</button>
+        <button class="btn btn-danger-outline" id="bulkDeleteBtn" data-i18n="common.delete">O'chirish</button>
       </div>
 
       <div class="search-bar" id="searchBar">
         <svg viewBox="0 0 24 24">
           <use href="#ic-search" />
         </svg>
-        <input type="text" id="searchInput" placeholder="Kiyim, brend yoki rang qidiring...">
+        <input type="text" id="searchInput" data-i18n-ph="wardrobe.searchPh"
+          placeholder="Kiyim, brend yoki rang qidiring...">
         <button id="searchClear" class="icon-btn-mini" hidden><svg viewBox="0 0 24 24">
             <use href="#ic-close" />
           </svg></button>
@@ -410,9 +411,9 @@
         <svg viewBox="0 0 24 24">
           <use href="#ic-shirt" />
         </svg>
-        <h3>Garderob bo'sh</h3>
-        <p>Birinchi kiyimingizni qo'shing va AI tavsiyalarini oling.</p>
-        <button class="btn btn-primary" data-nav="add">Kiyim qo'shish</button>
+        <h3 data-i18n="wardrobe.emptyTitle">Garderob bo'sh</h3>
+        <p data-i18n="wardrobe.emptyDesc">Birinchi kiyimingizni qo'shing va AI tavsiyalarini oling.</p>
+        <button class="btn btn-primary" data-nav="add" data-i18n="wardrobe.addItem">Kiyim qo'shish</button>
       </div>
     </main>
 
@@ -435,8 +436,8 @@
             </svg>
             <span>Rasm qo'shish</span>
           </div>
-          <input type="file" id="photoInput" accept="image/*" multiple hidden>
         </div>
+        <input type="file" id="photoInput" accept="image/*" multiple hidden>
 
         <div class="field">
           <label>Nomi *</label>
@@ -499,18 +500,19 @@
     <!-- ---- AI RECOMMENDATION ---- -->
     <main id="view-ai" class="view">
       <header class="page-header">
-        <h1>AI Tavsiya</h1>
+        <h1 data-i18n="ai.title">AI Tavsiya</h1>
         <span style="width:44px"></span>
       </header>
 
       <section class="section-block">
-        <p class="ai-intro">Vaziyatni tanlang, AI garderobingizdagi eng mos kombinatsiyani tayyorlaydi.</p>
+        <p class="ai-intro" data-i18n="ai.intro">Vaziyatni tanlang, AI garderobingizdagi eng mos kombinatsiyani
+          tayyorlaydi.</p>
         <div class="occasion-grid" id="occasionGrid"></div>
         <button class="btn btn-secondary btn-block" data-nav="chat" style="margin-top:14px">
           <svg viewBox="0 0 24 24" style="width:18px;height:18px">
             <use href="#ic-ai" />
           </svg>
-          AI bilan suhbatlashish
+          <span data-i18n="ai.chatWithAi">AI bilan suhbatlashish</span>
         </button>
       </section>
 
@@ -522,11 +524,12 @@
                 <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
                 <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52"></circle>
               </svg>
-              <div class="match-ring-label"><span id="matchPercent">0%</span><small>moslik</small></div>
+              <div class="match-ring-label"><span id="matchPercent">0%</span><small data-i18n="ai.match">moslik</small>
+              </div>
             </div>
             <div>
-              <h3 id="aiOccasionTitle">Tavsiya</h3>
-              <p id="aiOccasionDesc">Garderobingizdan tanlangan kombinatsiya</p>
+              <h3 id="aiOccasionTitle" data-i18n="ai.recommendation">Tavsiya</h3>
+              <p id="aiOccasionDesc" data-i18n="ai.recommendationDesc">Garderobingizdan tanlangan kombinatsiya</p>
             </div>
           </div>
           <div class="ai-outfit-grid" id="aiOutfitGrid"></div>
@@ -536,20 +539,20 @@
               <svg viewBox="0 0 24 24" style="width:18px;height:18px">
                 <use href="#ic-star" />
               </svg>
-              Saqlash
+              <span data-i18n="common.save">Saqlash</span>
             </button>
             <button class="btn btn-primary" id="refreshAiBtn">
               <svg viewBox="0 0 24 24" style="width:18px;height:18px">
                 <use href="#ic-ai" />
               </svg>
-              Yangilash
+              <span data-i18n="common.refresh">Yangilash</span>
             </button>
           </div>
           <button class="btn btn-secondary btn-block" id="shareOutfitBtn" style="margin-top:10px">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px">
               <use href="#ic-send" />
             </svg>
-            Rasm sifatida yuklab olish
+            <span data-i18n="ai.downloadImage">Rasm sifatida yuklab olish</span>
           </button>
         </div>
       </section>
@@ -558,8 +561,8 @@
         <svg viewBox="0 0 24 24">
           <use href="#ic-ai" />
         </svg>
-        <h3>Vaziyatni tanlang</h3>
-        <p>Yuqoridan bir vaziyatni tanlasangiz, AI sizga mos kiyim tavsiya qiladi.</p>
+        <h3 data-i18n="ai.chooseOccasion">Vaziyatni tanlang</h3>
+        <p data-i18n="ai.chooseOccasionDesc">Yuqoridan bir vaziyatni tanlasangiz, AI sizga mos kiyim tavsiya qiladi.</p>
       </div>
     </main>
 
@@ -604,6 +607,20 @@
 
       <section class="section-block">
         <div class="section-head">
+          <h2>Eng ko'p kiyilganlar</h2>
+        </div>
+        <ul class="rank-list" id="mostWornList"></ul>
+      </section>
+
+      <section class="section-block">
+        <div class="section-head">
+          <h2>Uzoq vaqt kiyilmaganlar</h2>
+        </div>
+        <ul class="rank-list" id="leastWornList"></ul>
+      </section>
+
+      <section class="section-block">
+        <div class="section-head">
           <h2>Kategoriyalar bo'yicha</h2>
         </div>
         <div class="bar-chart" id="categoryChart"></div>
@@ -635,6 +652,21 @@
           Profilni tahrirlash
         </button>
       </div>
+
+      <button class="premium-banner" id="premiumBannerBtn" data-nav="premium">
+        <div class="premium-banner-icon">
+          <svg viewBox="0 0 24 24">
+            <use href="#ic-star" />
+          </svg>
+        </div>
+        <div class="premium-banner-text">
+          <strong id="premiumBannerTitle">Premium'ga o'ting</strong>
+          <span id="premiumBannerSub">Cheksiz kiyim, ko'proq AI tavsiya</span>
+        </div>
+        <svg class="chev" viewBox="0 0 24 24">
+          <use href="#ic-chevron" />
+        </svg>
+      </button>
 
       <div class="profile-menu">
         <button class="profile-item" data-nav="wardrobe">
@@ -742,17 +774,17 @@
         <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24">
             <use href="#ic-back" />
           </svg></button>
-        <h1>Sozlamalar</h1>
+        <h1 data-i18n="settings.title">Sozlamalar</h1>
         <span style="width:44px"></span>
       </header>
 
       <div class="settings-group">
-        <p class="settings-group-title">Ko'rinish</p>
+        <p class="settings-group-title" data-i18n="settings.appearance">Ko'rinish</p>
         <div class="settings-row">
           <span class="settings-row-icon"><svg viewBox="0 0 24 24">
               <use href="#ic-sun" />
             </svg></span>
-          <span>Yorug' rejim</span>
+          <span data-i18n="settings.lightMode">Yorug' rejim</span>
           <label class="switch"><input type="radio" name="theme" id="themeLight"><span
               class="switch-visual"></span></label>
         </div>
@@ -760,38 +792,58 @@
           <span class="settings-row-icon"><svg viewBox="0 0 24 24">
               <use href="#ic-moon" />
             </svg></span>
-          <span>Tungi rejim</span>
+          <span data-i18n="settings.darkMode">Tungi rejim</span>
           <label class="switch"><input type="radio" name="theme" id="themeDark"><span
               class="switch-visual"></span></label>
         </div>
       </div>
 
       <div class="settings-group">
-        <p class="settings-group-title">Umumiy</p>
-        <div class="settings-row">
+        <p class="settings-group-title" data-i18n="settings.general">Umumiy</p>
+        <button class="settings-row settings-row-btn" id="languageBtn">
           <span class="settings-row-icon"><svg viewBox="0 0 24 24">
               <use href="#ic-globe" />
             </svg></span>
-          <span>Til</span>
-          <span class="settings-value">O'zbekcha</span>
-        </div>
+          <span data-i18n="settings.language">Til</span>
+          <span class="settings-value" id="languageValue">O'zbekcha</span>
+          <svg class="chev" viewBox="0 0 24 24">
+            <use href="#ic-chevron" />
+          </svg>
+        </button>
         <div class="settings-row">
           <span class="settings-row-icon"><svg viewBox="0 0 24 24">
               <use href="#ic-bell" />
             </svg></span>
-          <span>Bildirishnomalar</span>
+          <span data-i18n="settings.notifications">Bildirishnomalar</span>
           <label class="toggle"><input type="checkbox" id="notifToggle" checked><span
+              class="toggle-visual"></span></label>
+        </div>
+        <div class="settings-row" id="dailyReminderRow">
+          <span class="settings-row-icon"><svg viewBox="0 0 24 24">
+              <use href="#ic-sun" />
+            </svg></span>
+          <span data-i18n="settings.dailyReminder">Kunlik eslatma</span>
+          <label class="toggle"><input type="checkbox" id="dailyReminderToggle"><span
               class="toggle-visual"></span></label>
         </div>
       </div>
 
       <div class="settings-group">
-        <p class="settings-group-title">Ma'lumotlar</p>
+        <p class="settings-group-title" data-i18n="settings.data">Ma'lumotlar</p>
         <button class="settings-row settings-row-btn" id="backupBtn">
           <span class="settings-row-icon"><svg viewBox="0 0 24 24">
               <use href="#ic-shield" />
             </svg></span>
-          <span>Zaxira nusxa yuklab olish</span>
+          <span data-i18n="settings.backup">Zaxira nusxa yuklab olish (.json)</span>
+          <svg class="chev" viewBox="0 0 24 24">
+            <use href="#ic-chevron" />
+          </svg>
+        </button>
+        <button class="settings-row settings-row-btn" id="pdfExportBtn">
+          <span class="settings-row-icon"><svg viewBox="0 0 24 24">
+              <use href="#ic-shirt" />
+            </svg></span>
+          <span data-i18n="settings.pdfExport">Garderob katalogi (.pdf)</span>
           <svg class="chev" viewBox="0 0 24 24">
             <use href="#ic-chevron" />
           </svg>
@@ -800,7 +852,7 @@
           <span class="settings-row-icon"><svg viewBox="0 0 24 24">
               <use href="#ic-send" />
             </svg></span>
-          <span>Zaxiradan tiklash (import)</span>
+          <span data-i18n="settings.restore">Zaxiradan tiklash (import)</span>
           <svg class="chev" viewBox="0 0 24 24">
             <use href="#ic-chevron" />
           </svg>
@@ -810,12 +862,82 @@
           <span class="settings-row-icon"><svg viewBox="0 0 24 24">
               <use href="#ic-shield" />
             </svg></span>
-          <span>Maxfiylik siyosati</span>
+          <span data-i18n="settings.privacy">Maxfiylik siyosati</span>
           <svg class="chev" viewBox="0 0 24 24">
             <use href="#ic-chevron" />
           </svg>
         </button>
       </div>
+    </main>
+
+    <!-- ---- PREMIUM ---- -->
+    <main id="view-premium" class="view">
+      <header class="page-header">
+        <button class="icon-btn" data-nav="profile"><svg viewBox="0 0 24 24">
+            <use href="#ic-back" />
+          </svg></button>
+        <h1>Premium</h1>
+        <span style="width:44px"></span>
+      </header>
+
+      <div class="premium-hero">
+        <div class="premium-hero-icon">
+          <svg viewBox="0 0 24 24">
+            <use href="#ic-star" />
+          </svg>
+        </div>
+        <h2 id="premiumHeroTitle">Kiyimim AI Premium</h2>
+        <p id="premiumHeroSub">Garderobingizdan maksimal foyda oling</p>
+      </div>
+
+      <div class="premium-features">
+        <div class="premium-feature-row">
+          <svg viewBox="0 0 24 24">
+            <use href="#ic-shirt" />
+          </svg>
+          <div>
+            <strong>Cheksiz kiyim soni</strong>
+            <span>Bepul rejada 30 tagacha, Premium'da cheklovsiz</span>
+          </div>
+        </div>
+        <div class="premium-feature-row">
+          <svg viewBox="0 0 24 24">
+            <use href="#ic-sun" />
+          </svg>
+          <div>
+            <strong>Cheksiz AI tavsiya</strong>
+            <span>Bepul rejada kuniga 3 ta, Premium'da cheklovsiz</span>
+          </div>
+        </div>
+        <div class="premium-feature-row">
+          <svg viewBox="0 0 24 24">
+            <use href="#ic-star" />
+          </svg>
+          <div>
+            <strong>Cheksiz outfit saqlash</strong>
+            <span>Yoqqan kombinatsiyalaringizni istagancha saqlang</span>
+          </div>
+        </div>
+        <div class="premium-feature-row">
+          <svg viewBox="0 0 24 24">
+            <use href="#ic-award" />
+          </svg>
+          <div>
+            <strong>Premium belgisi</strong>
+            <span>Profilingizda oltin rangli Premium nishoni</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="premium-plans" id="premiumPlans"></div>
+
+      <button class="btn btn-primary btn-block" id="premiumSubscribeBtn" style="margin-top:18px">
+        Premium'ga o'tish
+      </button>
+      <button class="btn btn-secondary btn-block" id="premiumCancelBtn" style="margin-top:10px" hidden>
+        Obunani bekor qilish
+      </button>
+      <p class="premium-disclaimer">Bu — demo rejim: to'lov haqiqiy amalga oshmaydi, faqat qurilmangizda saqlanadi.</p>
     </main>
 
     <!-- ---- SAQLANGAN OUTFITLAR ---- -->
@@ -1090,19 +1212,19 @@
     <nav class="bottom-nav glass">
       <button class="nav-btn active" data-nav="home"><svg viewBox="0 0 24 24">
           <use href="#ic-home" />
-        </svg><span>Bosh sahifa</span></button>
+        </svg><span data-i18n="nav.home">Bosh sahifa</span></button>
       <button class="nav-btn" data-nav="wardrobe"><svg viewBox="0 0 24 24">
           <use href="#ic-shirt" />
-        </svg><span>Kiyimlarim</span></button>
+        </svg><span data-i18n="nav.wardrobe">Kiyimlarim</span></button>
       <button class="nav-btn nav-btn-fab" data-nav="add"><span class="fab-inner"><svg viewBox="0 0 24 24">
             <use href="#ic-plus" />
           </svg></span></button>
       <button class="nav-btn" data-nav="ai"><svg viewBox="0 0 24 24">
           <use href="#ic-ai" />
-        </svg><span>AI Tavsiya</span></button>
+        </svg><span data-i18n="nav.ai">AI Tavsiya</span></button>
       <button class="nav-btn" data-nav="profile"><svg viewBox="0 0 24 24">
           <use href="#ic-user" />
-        </svg><span>Profil</span></button>
+        </svg><span data-i18n="nav.profile">Profil</span></button>
     </nav>
 
     <button class="back-to-top" id="backToTop"><svg viewBox="0 0 24 24">
@@ -1149,6 +1271,10 @@
         <p class="detail-category" id="detailCategory">—</p>
         <div class="detail-tags" id="detailTags"></div>
         <p class="detail-note" id="detailNote"></p>
+        <div class="detail-match-section" id="detailMatchSection" hidden>
+          <h4>Shu bilan mos keladi</h4>
+          <div class="detail-match-list" id="detailMatchList"></div>
+        </div>
         <div class="detail-actions">
           <button class="btn btn-secondary" id="detailEditBtn"><svg viewBox="0 0 24 24" style="width:18px;height:18px">
               <use href="#ic-edit" />
@@ -1244,6 +1370,57 @@
     </div>
   </div>
 
+  <!-- ============ TIL TANLASH MODAL ============ -->
+  <div class="modal-overlay" id="languageModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-head">
+        <h3>Tilni tanlang</h3>
+        <button class="modal-close" id="languageModalClose"><svg viewBox="0 0 24 24">
+            <use href="#ic-close" />
+          </svg></button>
+      </div>
+      <div class="lang-list">
+        <button class="lang-row" data-lang="uz">
+          <span>🇺🇿&nbsp; O'zbekcha</span>
+          <svg class="lang-check" viewBox="0 0 24 24">
+            <use href="#ic-check" />
+          </svg>
+        </button>
+        <button class="lang-row" data-lang="ru">
+          <span>🇷🇺&nbsp; Русский</span>
+          <svg class="lang-check" viewBox="0 0 24 24">
+            <use href="#ic-check" />
+          </svg>
+        </button>
+        <button class="lang-row" data-lang="en">
+          <span>🇬🇧&nbsp; English</span>
+          <svg class="lang-check" viewBox="0 0 24 24">
+            <use href="#ic-check" />
+          </svg>
+        </button>
+      </div>
+      <p class="lang-note">Tilni tanlaganingizdan so'ng asosiy interfeys matnlari (menyu, sarlavhalar) shu tilga o'tadi.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ NOTIFICATIONS MODAL ============ -->
+
+  <div class="modal-overlay" id="notifModal">
+    <div class="modal-sheet notif-box">
+      <div class="modal-handle"></div>
+      <div class="modal-head">
+        <h3>Bildirishnomalar</h3>
+        <button class="icon-btn" id="notifModalClose"><svg viewBox="0 0 24 24">
+            <use href="#ic-close" />
+          </svg></button>
+      </div>
+      <ul class="notif-list" id="notifList"></ul>
+      <p class="notif-empty" id="notifEmpty" hidden>Hozircha bildirishnoma yo'q.</p>
+    </div>
+  </div>
+
   <!-- ============ TOAST CONTAINER ============ -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -1259,11 +1436,14 @@
 
   <script src="/js/storage.js"></script>
   <script src="/js/data.js"></script>
+  <script src="/js/i18n.js"></script>
   <script src="/js/ui.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/wardrobe.js"></script>
   <script src="/js/ai.js"></script>
+  <script src="/js/recommendation.js"></script>
   <script src="/js/features.js"></script>
+  <script src="/js/premium.js"></script>
   <script src="/js/app.js"></script>
   <script src="//js/sw.js"></script>
   <script src="/js/profil-edit.js"></script>

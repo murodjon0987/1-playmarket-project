@@ -9,6 +9,19 @@
 const UI = {
   currentView: "home",
 
+  /** "5 daqiqa oldin", "2 soat oldin" kabi nisbiy vaqt matni */
+  timeAgo(timestamp) {
+    const diffSec = Math.floor((Date.now() - timestamp) / 1000);
+    if (diffSec < 60) return "hozirgina";
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) return `${diffMin} daqiqa oldin`;
+    const diffHour = Math.floor(diffMin / 60);
+    if (diffHour < 24) return `${diffHour} soat oldin`;
+    const diffDay = Math.floor(diffHour / 24);
+    if (diffDay < 7) return `${diffDay} kun oldin`;
+    return new Date(timestamp).toLocaleDateString("uz-UZ");
+  },
+
   /** Berilgan nomdagi ekranga (view) o'tish */
   navigateTo(viewName) {
     document
@@ -85,15 +98,25 @@ const UI = {
     document.getElementById("confirmTitle").textContent = title;
     document.getElementById("confirmText").textContent = text;
     const okBtn = document.getElementById("confirmOk");
+    const cancelBtn = document.getElementById("confirmCancel");
     okBtn.textContent = okLabel;
     this.openModal("confirmModal");
 
-    const handler = () => {
+    const cleanup = () => {
+      okBtn.removeEventListener("click", okHandler);
+      cancelBtn.removeEventListener("click", cancelHandler);
+    };
+    const okHandler = () => {
       onConfirm();
       this.closeModal("confirmModal");
-      okBtn.removeEventListener("click", handler);
+      cleanup();
     };
-    okBtn.addEventListener("click", handler);
+    const cancelHandler = () => {
+      this.closeModal("confirmModal");
+      cleanup();
+    };
+    okBtn.addEventListener("click", okHandler);
+    cancelBtn.addEventListener("click", cancelHandler);
   },
 
   /** Mavzu (dark/light) qo'llash va tugmalarni sinxronlash */

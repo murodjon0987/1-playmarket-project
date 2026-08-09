@@ -36,6 +36,7 @@
       <button class="admin-nav-btn active" data-panel="overview">📊 Umumiy ko'rinish</button>
       <button class="admin-nav-btn" data-panel="users">👤 Foydalanuvchilar</button>
       <button class="admin-nav-btn" data-panel="items">👕 Kiyimlar</button>
+      <button class="admin-nav-btn" data-panel="add-item">➕ Kiyim qo'shish</button>
       <button class="admin-nav-btn" data-panel="outfits">⭐ Outfitlar</button>
       <button class="admin-nav-btn" data-panel="wishlist">🛍️ Wishlist</button>
       <button class="admin-nav-btn" data-panel="messages">📩 Xabarlar</button>
@@ -82,6 +83,48 @@
           <tbody id="itemsTableBody"></tbody>
         </table>
         <p id="itemsEmpty" class="admin-empty" hidden>Kiyimlar yo'q.</p>
+      </div>
+    </section>
+
+    <!-- ADD ITEM -->
+    <section id="panel-add-item" class="admin-panel">
+      <h2>Yangi kiyim qo'shish</h2>
+      <div class="admin-card">
+        <form id="adminAddItemForm" class="admin-form">
+          <div class="admin-form-row">
+            <label>Nomi *</label>
+            <input type="text" id="adminItemName" placeholder="Masalan: Oq futbolka" required>
+          </div>
+          <div class="admin-form-grid">
+            <div class="admin-form-row">
+              <label>Kategoriya *</label>
+              <select id="adminItemCategory" required></select>
+            </div>
+            <div class="admin-form-row">
+              <label>Rang *</label>
+              <select id="adminItemColor" required></select>
+            </div>
+          </div>
+          <div class="admin-form-grid">
+            <div class="admin-form-row">
+              <label>Fasl *</label>
+              <select id="adminItemSeason" required></select>
+            </div>
+            <div class="admin-form-row">
+              <label>Brend</label>
+              <input type="text" id="adminItemBrand" placeholder="Masalan: Zara">
+            </div>
+          </div>
+          <div class="admin-form-row">
+            <label>Rasm URL (ixtiyoriy)</label>
+            <input type="text" id="adminItemPhoto" placeholder="https://... yoki bo'sh qoldiring">
+          </div>
+          <div class="admin-form-row">
+            <label>Izoh</label>
+            <textarea id="adminItemNote" rows="2" placeholder="Qo'shimcha izoh..."></textarea>
+          </div>
+          <button type="submit" class="admin-btn admin-btn-primary">Kiyimni qo'shish</button>
+        </form>
       </div>
     </section>
 

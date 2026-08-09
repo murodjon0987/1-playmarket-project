@@ -13,9 +13,9 @@
 // kishi ham to'g'ridan-to'g'ri parolni o'qiy olmaydi (baribir mutlaq
 // xavfsizlik emas, chunki tekshiruv frontendda, lekin ancha yaxshiroq).
 const ADMIN_PASSWORD_HASH =
-  "murodjon722"; // "kiyimim2026"
-const ADMIN_SESSION_KEY = "murodjon722";
-const WISHLIST_KEY = "murodjon722";
+  "f8db1e23a3144d1ac486757c968dc1d82ce1cf41d2b3f77f2837b30729d030de"; // "admin09"
+const ADMIN_SESSION_KEY = "kiyimim_admin_session";
+const WISHLIST_KEY = "kiyimim_wishlist";
 
 async function sha256(text) {
   const data = new TextEncoder().encode(text);
@@ -43,6 +43,7 @@ const AdminUI = {
     this.bindNav();
     this.bindDangerZone();
     this.bindRawActions();
+    this.bindAddItemForm();
 
     if (sessionStorage.getItem(ADMIN_SESSION_KEY) === "1") {
       this.unlock();
@@ -108,6 +109,58 @@ const AdminUI = {
     this.renderWishlist();
     this.renderMessages();
     this.renderRaw();
+  },
+
+  /* ---------------------------------------------------------------------
+     KIYIM QO'SHISH
+  --------------------------------------------------------------------- */
+  fillItemFormSelects() {
+    const catSel = document.getElementById("adminItemCategory");
+    const colorSel = document.getElementById("adminItemColor");
+    const seasonSel = document.getElementById("adminItemSeason");
+    if (!catSel || catSel.dataset.filled) return;
+    catSel.innerHTML = CATEGORIES.map(
+      (c) => `<option value="${c.id}">${c.name}</option>`,
+    ).join("");
+    colorSel.innerHTML = COLORS.map(
+      (c) => `<option value="${c.id}">${c.name}</option>`,
+    ).join("");
+    seasonSel.innerHTML = SEASONS.map(
+      (s) => `<option value="${s.id}">${s.name}</option>`,
+    ).join("");
+    catSel.dataset.filled = "1";
+  },
+
+  bindAddItemForm() {
+    this.fillItemFormSelects();
+    const form = document.getElementById("adminAddItemForm");
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("adminItemName").value.trim();
+      if (!name) {
+        this.toast("Kiyim nomini kiriting", "error");
+        return;
+      }
+      const photo = document.getElementById("adminItemPhoto").value.trim();
+      const payload = {
+        name,
+        category: document.getElementById("adminItemCategory").value,
+        color: document.getElementById("adminItemColor").value,
+        season: document.getElementById("adminItemSeason").value,
+        brand: document.getElementById("adminItemBrand").value.trim(),
+        note: document.getElementById("adminItemNote").value.trim(),
+        condition: "Yangi",
+        laundry: "toza",
+        photos: photo ? [photo] : [],
+        photo: photo || null,
+      };
+      ItemsRepo.create(payload);
+      this.toast(`"${name}" garderobga qo'shildi`, "success");
+      form.reset();
+      this.fillItemFormSelects();
+      this.renderItems();
+      this.renderOverview();
+    });
   },
 
   /* ---------------------------------------------------------------------

@@ -478,14 +478,36 @@ const ChatUI = {
    *  ma'lumotlaridan foydalanadi. Bu haqiqiy AI emas, lekin backend
    *  ulanmaguncha ilova ishlab turishi uchun oqilona javob beradi. */
   generateDemoReply(text) {
-    const q = text.toLowerCase();
+    const q = text.toLowerCase().trim();
     const items = ItemsRepo.all().filter((it) => it.laundry !== "kirli");
 
     const pickByCategories = (cats) =>
       items.find((it) => cats.includes(it.category));
 
+    // Salomlashish
+    if (
+      /^(salom|assalomu alaykum|salomlar|hi|hello|hey|aloo?|halo)\b/.test(q)
+    ) {
+      return "Va alaykum assalom! Kiyinish bo'yicha nima haqida gaplashamiz — bugungi ob-havoga moslashtirilgan kiyim kerakmi, yoki biror vaziyat (ish, sport, uchrashuv) uchun maslahat kerakmi?";
+    }
+    // Rahmat / xayrlashish
+    if (/rahmat|tashakkur|thanks|rahmatlar/.test(q)) {
+      return "Arzimaydi! Yana savol bo'lsa, bemalol yozing 😊";
+    }
+    if (/xayr|ko'rishguncha|bye/.test(q)) {
+      return "Xayr! Kiyim tanlashda omad 👋";
+    }
+    // Kim san / bot haqida
+    if (
+      /kimsan|siz kimsiz|nima qila olasan|nima qilasan|yordam bera olasan/.test(
+        q,
+      )
+    ) {
+      return "Men Kiyimim AI yordamchisiman — garderobingizga qarab kiyim tanlashda, kombinatsiya tuzishda va ob-havoga mos kiyim tavsiya qilishda yordam beraman.";
+    }
+
     if (!items.length) {
-      return "Garderobingiz hozircha bo'sh — avval bir nechta kiyim qo'shsangiz, sizga aniqroq maslahat bera olaman.";
+      return "Garderobingiz hozircha bo'sh — avval bir nechta kiyim qo'shsangiz, sizga aniqroq maslahat bera olaman. Hozircha umumiy savollaringizga javob bera olaman 🙂";
     }
     if (/sovuq|qish|izg'irin/.test(q)) {
       const warm = pickByCategories(["kurtka", "kostyum"]) || items[0];
@@ -530,6 +552,180 @@ const ChatUI = {
     );
   },
 };
+/* ==========================================================================
+   SAYOHAT RO'YXATI
+   ========================================================================== */
+const TravelUI = {
+  init() {
+    UI.fillSelect(document.getElementById("travelSeason"), SEASONS);
+    document
+      .getElementById("travelGenerateBtn")
+      .addEventListener("click", () => this.generate());
+  },
+
+  generate() {
+    const days = Math.max(
+      1,
+      Math.min(
+        30,
+        parseInt(document.getElementById("travelDays").value, 10) || 3,
+      ),
+    );
+    const season = document.getElementById("travelSeason").value;
+    const items = ItemsRepo.all().filter(
+      (it) => it.season === season || it.season === "barcha-fasl",
+    );
+
+    // Kiyim toifasi bo'yicha necha dona kerakligini kunlar soniga qarab hisoblaymiz
+    const plan = [
+      {
+        label: "Ustki kiyim (futbolka/ko'ylak)",
+        cats: ["futbolka", "koylak"],
+        count: Math.min(days, 7),
+      },
+      {
+        label: "Shim/jinsi",
+        cats: ["shim", "jinsi", "shortik"],
+        count: Math.max(1, Math.ceil(days / 3)),
+      },
+      {
+        label: "Tashqi kiyim (kurtka/kostyum)",
+        cats: ["kurtka", "kostyum"],
+        count: days > 3 ? 2 : 1,
+      },
+      {
+        label: "Oyoq kiyim",
+        cats: ["oyoq-kiyim", "krossovka"],
+        count: days > 5 ? 2 : 1,
+      },
+      {
+        label: "Aksessuar",
+        cats: ["kepka", "soat", "sumka", "aksessuar"],
+        count: 1,
+      },
+    ];
+
+    const checklist = plan.map((group) => {
+      const matched = items.filter((it) => group.cats.includes(it.category));
+      const picked = matched.slice(0, group.count);
+      return {
+        label: group.label,
+        need: group.count,
+        have: picked,
+        missing: group.count - picked.length,
+      };
+    });
+
+    // Umumiy sayohat buyumlari (kiyimdan tashqari)
+    const essentials = [
+      "Gigiyena buyumlari",
+      "Zaryadlovchi/kabel",
+      "Hujjatlar (pasport/bilet)",
+      "Dori-darmon (kerak bo'lsa)",
+    ];
+
+    this.render(checklist, essentials, days, season);
+  },
+
+  render(checklist, essentials, days, seasonId) {
+    const box = document.getElementById("travelChecklist");
+    const seasonName = SEASONS.find((s) => s.id === seasonId)?.name || seasonId;
+
+    const clothesHtml = checklist
+      .map((g) => {
+        const itemsHtml = g.have
+          .map(
+            (it) => `
+          <li class="travel-check-item">
+            <span class="travel-check-dot done"></span>
+            <span>${it.name}</span>
+          </li>`,
+          )
+          .join("");
+        const missingHtml =
+          g.missing > 0
+            ? `<li class="travel-check-item travel-check-missing">
+                <span class="travel-check-dot"></span>
+                <span>${g.label} yetishmayapti (${g.missing} ta) — garderobga qo'shing</span>
+              </li>`
+            : "";
+        return `
+        <div class="travel-check-group">
+          <h4>${g.label} <small>(${g.have.length}/${g.need})</small></h4>
+          <ul>${itemsHtml || ""}${missingHtml}</ul>
+        </div>`;
+      })
+      .join("");
+
+    const essentialsHtml = essentials
+      .map(
+        (e) => `
+      <li class="travel-check-item">
+        <span class="travel-check-dot"></span>
+        <span>${e}</span>
+      </li>`,
+      )
+      .join("");
+
+    box.innerHTML = `
+      <p class="travel-summary">${days} kunlik, ${seasonName.toLowerCase()} sayohat uchun ro'yxat:</p>
+      ${clothesHtml}
+      <div class="travel-check-group">
+        <h4>Boshqa zarur narsalar</h4>
+        <ul>${essentialsHtml}</ul>
+      </div>
+    `;
+  },
+};
+
+const NotificationsUI = {
+  init() {
+    document
+      .getElementById("notifModalClose")
+      .addEventListener("click", () => this.close());
+    document.getElementById("notifModal").addEventListener("click", (e) => {
+      if (e.target.id === "notifModal") this.close();
+    });
+    Store.on("activity:changed", () => this.syncDot());
+    this.syncDot();
+  },
+
+  syncDot() {
+    const dot = document.querySelector("#notifBtn .dot");
+    if (!dot) return;
+    dot.hidden = ActivityRepo.unreadCount() === 0;
+  },
+
+  open() {
+    this.render();
+    ActivityRepo.markAllRead();
+    this.syncDot();
+    UI.openModal("notifModal");
+  },
+
+  close() {
+    UI.closeModal("notifModal");
+  },
+
+  render() {
+    const list = ActivityRepo.all();
+    const box = document.getElementById("notifList");
+    document.getElementById("notifEmpty").hidden = list.length > 0;
+    box.innerHTML = list
+      .map(
+        (a) => `
+      <li class="notif-item ${a.read ? "" : "notif-item-unread"}">
+        <span class="notif-item-icon"><svg viewBox="0 0 24 24"><use href="#${a.icon}"/></svg></span>
+        <div class="notif-item-body">
+          <p>${a.text}</p>
+          <span>${UI.timeAgo(a.time)}</span>
+        </div>
+      </li>`,
+      )
+      .join("");
+  },
+};
+
 /* ==========================================================================
    WISHLIST (KERAK NARSALAR)
    ========================================================================== */

@@ -9,6 +9,7 @@
 const App = {
   init() {
     UI.initTheme();
+    I18N.init();
     this.seedIfNeeded();
     Auth.init();
     Wardrobe.init();
@@ -78,6 +79,11 @@ const App = {
     WishlistUI.init();
     ChatUI.init();
     ProfileEditUI.init();
+    PremiumUI.init();
+    NotificationsUI.init();
+    TravelUI.init();
+    if (typeof RecommendationEngine !== "undefined")
+      RecommendationEngine.init();
     ProgressRepo.recordLoginAndGetStreak();
   },
 
@@ -144,7 +150,7 @@ const App = {
       .getElementById("logoutBtn")
       .addEventListener("click", () => Auth.logout());
     document.getElementById("notifBtn").addEventListener("click", () => {
-      UI.toast("Hozircha yangi bildirishnoma yo'q", "default");
+      NotificationsUI.open();
     });
     document.getElementById("weatherChip").addEventListener("click", () => {
       const mapWrap = document.getElementById("weatherMapWrap");
@@ -452,6 +458,7 @@ const App = {
     `;
 
     this.renderCapsuleAnalyzer(items);
+    this.renderWornRanking(items);
 
     const catChart = document.getElementById("categoryChart");
     const maxCat = Math.max(1, ...Object.values(catCounts));
@@ -491,8 +498,44 @@ const App = {
       : `<p style="font-size:13px;color:var(--text-3)">Ma'lumot yo'q.</p>`;
   },
 
-  /** Capsule Wardrobe Analyzer — garderobdagi kiyimlar bilan yasash mumkin
-   *  bo'lgan barcha "yuqori + pastki + oyoq kiyim" kombinatsiyalarini hisoblaydi */
+  /** Eng ko'p / eng kam (yoki hech) kiyilgan kiyimlar reytingi — top 5 */
+  renderWornRanking(items) {
+    const mostBox = document.getElementById("mostWornList");
+    const leastBox = document.getElementById("leastWornList");
+    if (!mostBox || !leastBox) return;
+
+    if (!items.length) {
+      mostBox.innerHTML = `<p style="font-size:13px;color:var(--text-3)">Ma'lumot yo'q.</p>`;
+      leastBox.innerHTML = `<p style="font-size:13px;color:var(--text-3)">Ma'lumot yo'q.</p>`;
+      return;
+    }
+
+    const most = [...items]
+      .sort((a, b) => (b.wearCount || 0) - (a.wearCount || 0))
+      .slice(0, 5);
+    const least = [...items]
+      .sort((a, b) => (a.wearCount || 0) - (b.wearCount || 0))
+      .slice(0, 5);
+
+    const rowHtml = (it, idx) => `
+      <li class="rank-row">
+        <span class="rank-num">${idx + 1}</span>
+        <span class="rank-thumb">${
+          it.photo
+            ? `<img src="${it.photo}" alt="">`
+            : `<svg viewBox="0 0 24 24"><use href="#ic-shirt"/></svg>`
+        }</span>
+        <div class="rank-info">
+          <strong>${it.name}</strong>
+          <span>${catName(it.category)}</span>
+        </div>
+        <span class="rank-count">${it.wearCount || 0}x</span>
+      </li>`;
+
+    mostBox.innerHTML = most.map(rowHtml).join("");
+    leastBox.innerHTML = least.map(rowHtml).join("");
+  },
+
   renderCapsuleAnalyzer(items) {
     const tops = items.filter((it) =>
       AIEngine.SLOTS.top.categories.includes(it.category),
@@ -614,11 +657,205 @@ const App = {
       UI.toast("Zaxira nusxa yuklab olindi", "success");
     });
 
+    document.getElementById("importBtn").addEventListener("click", () => {
+      document.getElementById("importFileInput").click();
+    });
+    document
+      .getElementById("importFileInput")
+      .addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const data = JSON.parse(text);
+          if (!Array.isArray(data.items)) throw new Error("Noto'g'ri format");
+          UI.confirm({
+            title: "Zaxiradan tiklash",
+            text: `Faylda ${data.items.length} ta kiyim topildi. Bu joriy garderobingizga qo'shiladi (mavjudlari o'chmaydi). Davom etasizmi?`,
+            okLabel: "Tiklash",
+            onConfirm: () => {
+              const existing = ItemsRepo.all();
+              const existingIds = new Set(existing.map((it) => it.id));
+              const merged = [
+                ...existing,
+                ...data.items.filter((it) => !existingIds.has(it.id)),
+              ];
+              ItemsRepo.save(merged);
+              UI.toast("Ma'lumotlar tiklandi", "success");
+              if (UI.currentView === "wardrobe") Wardrobe.render();
+              this.renderHome();
+            },
+          });
+        } catch (err) {
+          UI.toast("Fayl noto'g'ri yoki buzilgan", "error");
+        }
+        e.target.value = "";
+      });
+
+    document.getElementById("pdfExportBtn").addEventListener("click", () => {
+      this.exportWardrobePdf();
+    });
+
+    this.bindLanguageSelector();
+    this.bindDailyReminder();
+
     document.getElementById("privacyBtn").addEventListener("click", () => {
       UI.toast(
         "Barcha ma'lumotlaringiz faqat shu qurilmada, brauzeringizda saqlanadi.",
       );
     });
+  },
+
+  /** Garderobni oddiy, chop etish uchun mos HTML sahifa sifatida ochib,
+   *  brauzerning "Print to PDF" imkoniyati orqali PDF yaratishga yordam beradi */
+  exportWardrobePdf() {
+    const items = ItemsRepo.all();
+    if (!items.length) {
+      UI.toast("Garderob bo'sh — avval kiyim qo'shing", "error");
+      return;
+    }
+    const rows = items
+      .map(
+        (it) => `
+      <tr>
+        <td>${it.photo ? `<img src="${it.photo}" style="width:48px;height:48px;object-fit:cover;border-radius:8px">` : ""}</td>
+        <td>${it.name}</td>
+        <td>${catName(it.category)}</td>
+        <td>${colorInfo(it.color).name}</td>
+        <td>${seasonName(it.season)}</td>
+        <td>${it.brand || "—"}</td>
+      </tr>`,
+      )
+      .join("");
+    const html = `<!DOCTYPE html><html lang="uz"><head><meta charset="utf-8">
+      <title>Kiyimim AI — Garderob katalogi</title>
+      <style>
+        body{font-family:Arial,sans-serif;padding:24px;color:#0F172A}
+        h1{margin-bottom:4px} p{color:#64748B;margin-top:0}
+        table{width:100%;border-collapse:collapse;margin-top:16px}
+        th,td{text-align:left;padding:8px;border-bottom:1px solid #E2E8F0;font-size:13px}
+        th{color:#64748B;font-weight:700}
+        @media print { body{padding:0} }
+      </style></head><body>
+      <h1>Garderob katalogi</h1>
+      <p>${items.length} ta kiyim · ${new Date().toLocaleDateString("uz-UZ")}</p>
+      <table><thead><tr><th>Rasm</th><th>Nomi</th><th>Kategoriya</th><th>Rang</th><th>Fasl</th><th>Brend</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+      <script>window.onload = () => window.print();</script>
+      </body></html>`;
+    const win = window.open("", "_blank");
+    if (!win) {
+      UI.toast("Popup bloklandi — brauzer sozlamalarini tekshiring", "error");
+      return;
+    }
+    win.document.write(html);
+    win.document.close();
+  },
+
+  /** Interfeys tili tanlovi — hozircha faqat saqlanadi, to'liq tarjima keyin */
+  bindLanguageSelector() {
+    const LANG_LABELS = { uz: "O'zbekcha", ru: "Русский", en: "English" };
+    const { language } = SettingsRepo.get();
+    const current = language || "uz";
+    document.getElementById("languageValue").textContent = LANG_LABELS[current];
+
+    const syncChecks = () => {
+      document.querySelectorAll(".lang-row").forEach((row) => {
+        row.classList.toggle(
+          "active",
+          row.dataset.lang === (SettingsRepo.get().language || "uz"),
+        );
+      });
+    };
+
+    document.getElementById("languageBtn").addEventListener("click", () => {
+      syncChecks();
+      UI.openModal("languageModal");
+    });
+    document
+      .getElementById("languageModalClose")
+      .addEventListener("click", () => UI.closeModal("languageModal"));
+    document.getElementById("languageModal").addEventListener("click", (e) => {
+      if (e.target.id === "languageModal") UI.closeModal("languageModal");
+    });
+    document.querySelectorAll(".lang-row").forEach((row) => {
+      row.addEventListener("click", () => {
+        SettingsRepo.set({ language: row.dataset.lang });
+        document.getElementById("languageValue").textContent =
+          LANG_LABELS[row.dataset.lang];
+        syncChecks();
+        UI.closeModal("languageModal");
+        this.renderHome();
+        UI.toast(
+          "Til o'zgartirildi / Language changed / Язык изменён",
+          "success",
+        );
+      });
+    });
+  },
+
+  /** Kunlik "nima kiyaman" eslatmasi — brauzer Notification API orqali
+   *  (foydalanuvchi ruxsat bergandan so'ng), sahifa ochiq bo'lganda ishlaydi */
+  bindDailyReminder() {
+    const toggle = document.getElementById("dailyReminderToggle");
+    const { dailyReminder } = SettingsRepo.get();
+    toggle.checked = !!dailyReminder;
+
+    toggle.addEventListener("change", async (e) => {
+      if (e.target.checked) {
+        if (!("Notification" in window)) {
+          UI.toast(
+            "Brauzeringiz bildirishnomani qo'llab-quvvatlamaydi",
+            "error",
+          );
+          e.target.checked = false;
+          return;
+        }
+        const perm = await Notification.requestPermission();
+        if (perm !== "granted") {
+          UI.toast("Bildirishnoma ruxsati berilmadi", "error");
+          e.target.checked = false;
+          return;
+        }
+        SettingsRepo.set({ dailyReminder: true });
+        UI.toast("Kunlik eslatma yoqildi", "success");
+        this.scheduleDailyReminder();
+      } else {
+        SettingsRepo.set({ dailyReminder: false });
+        UI.toast("Kunlik eslatma o'chirildi");
+      }
+    });
+
+    if (
+      dailyReminder &&
+      "Notification" in window &&
+      Notification.permission === "granted"
+    ) {
+      this.scheduleDailyReminder();
+    }
+  },
+
+  /** Sahifa ochiq turgan holda, ertalab (09:00) bir marta eslatma ko'rsatadi.
+   *  Chinakam fon bildirishnomasi uchun Service Worker + Push kerak bo'lardi,
+   *  bu esa oddiy, backend’siz ishlaydigan yengil versiya. */
+  scheduleDailyReminder() {
+    if (this._reminderTimer) clearTimeout(this._reminderTimer);
+    const now = new Date();
+    const target = new Date();
+    target.setHours(9, 0, 0, 0);
+    if (target <= now) target.setDate(target.getDate() + 1);
+    const delay = target - now;
+    this._reminderTimer = setTimeout(() => {
+      if (
+        SettingsRepo.get().dailyReminder &&
+        Notification.permission === "granted"
+      ) {
+        new Notification("Kiyimim AI", {
+          body: "Bugungi kiyimingizni tanlashga tayyormisiz? AI tavsiyani ko'ring 👕",
+        });
+      }
+      this.scheduleDailyReminder();
+    }, delay);
   },
 };
 

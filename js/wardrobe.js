@@ -439,6 +439,7 @@ const Wardrobe = {
       ${it.material ? `<span class="detail-tag">${it.material}</span>` : ""}
     `;
     this.refreshDetailFavIcon(it);
+    this.renderDetailMatches(it);
     UI.openModal("detailModal");
   },
 
@@ -446,6 +447,52 @@ const Wardrobe = {
     document
       .getElementById("detailFavBtn")
       .classList.toggle("is-fav", !!item.isFavorite);
+  },
+
+  /** Rang moslik jadvaliga asosan, ushbu kiyim bilan mos keladigan
+   *  boshqa toifadagi (top/bottom/shoes) 4 tagacha kiyimni topib ko'rsatadi */
+  renderDetailMatches(item) {
+    const section = document.getElementById("detailMatchSection");
+    const box = document.getElementById("detailMatchList");
+    if (!section || !box || typeof RecommendationEngine === "undefined") {
+      if (section) section.hidden = true;
+      return;
+    }
+
+    const harmony = RecommendationEngine.colorHarmony;
+    const matchColors = harmony[item.color] || [];
+    const others = ItemsRepo.all().filter(
+      (it) => it.id !== item.id && it.category !== item.category,
+    );
+    const matches = others
+      .filter((it) => matchColors.includes(it.color))
+      .slice(0, 4);
+
+    if (!matches.length) {
+      section.hidden = true;
+      return;
+    }
+
+    section.hidden = false;
+    box.innerHTML = matches
+      .map(
+        (it) => `
+      <div class="detail-match-card" data-open-item="${it.id}">
+        <span class="detail-match-thumb">${
+          it.photo
+            ? `<img src="${it.photo}" alt="">`
+            : `<svg viewBox="0 0 24 24"><use href="#ic-shirt"/></svg>`
+        }</span>
+        <span>${it.name}</span>
+      </div>`,
+      )
+      .join("");
+
+    box.querySelectorAll("[data-open-item]").forEach((card) => {
+      card.addEventListener("click", () => {
+        this.openDetail(card.dataset.openItem);
+      });
+    });
   },
 
   /* ---------------------------------------------------------------------
@@ -663,6 +710,15 @@ const Wardrobe = {
 
     if (!name) {
       UI.toast("Iltimos, kiyim nomini kiriting", "error");
+      return;
+    }
+
+    // Yangi kiyim qo'shishda (tahrirlashda emas) bepul reja limitini tekshiramiz
+    if (
+      !this.state.editingId &&
+      typeof PremiumUI !== "undefined" &&
+      !PremiumUI.canAddItem()
+    ) {
       return;
     }
 
