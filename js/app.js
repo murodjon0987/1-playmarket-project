@@ -21,19 +21,28 @@ const App = {
     OnboardingUI.init();
 
     // Splash screen — 2 soniyadan so'ng tegishli ekranga o'tish
+    const session = UsersRepo.getSession();
+    const isLoggedIn = !!(session && UsersRepo.getCurrent());
+
+    // Auth/appShell holatini SPLASH TUGASHINI KUTMASDAN, darhol aniqlaymiz —
+    // shunda animatsiya sekin ishlagan taqdirda ham foydalanuvchi hech qanday
+    // "chaqnab yo'qolib ketish" (login formasi bir lahza ko'rinib, yo'qolib
+    // ketish) holatini ko'rmaydi.
+    if (isLoggedIn) {
+      this.startApp();
+    } else {
+      document.getElementById("auth").style.display = "flex";
+    }
+
     setTimeout(() => {
-      document.getElementById("splash").style.opacity = "0";
-      document.getElementById("splash").style.transition = "opacity .4s ease";
+      const splash = document.getElementById("splash");
+      if (!splash) return;
+      splash.style.transition = "opacity .4s ease";
+      splash.style.opacity = "0";
       setTimeout(() => {
-        document.getElementById("splash").style.display = "none";
-        const session = UsersRepo.getSession();
-        if (session && UsersRepo.getCurrent()) {
-          this.startApp();
-        } else {
-          document.getElementById("auth").style.display = "flex";
-        }
+        splash.style.display = "none";
       }, 400);
-    }, 1900);
+    }, 900);
   },
 
   /** Ilova endi demo ma'lumotlarsiz, bo'sh garderob bilan boshlanadi.

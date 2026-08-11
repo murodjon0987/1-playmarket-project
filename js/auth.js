@@ -73,6 +73,7 @@ const Auth = {
     const user = UsersRepo.create({ name, email, password });
     UsersRepo.setSession(user.id, true);
     UI.toast(`Xush kelibsiz, ${name}!`, "success");
+    App.startApp();
     document.getElementById("auth").style.display = "none";
     OnboardingUI.show();
   },
